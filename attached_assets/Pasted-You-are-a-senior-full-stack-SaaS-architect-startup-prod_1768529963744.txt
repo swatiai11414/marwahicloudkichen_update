@@ -1,0 +1,202 @@
+You are a senior full-stack SaaS architect, startup product engineer,
+and security-focused system designer.
+
+I am building a real multi-tenant startup product called:
+
+HDOS – Hotel Digital Operating System
+
+This is NOT a normal hotel website.
+This is a scalable SaaS platform where:
+ONE codebase = UNLIMITED hotels.
+Each hotel is only a database record.
+
+-------------------------------------------------
+CORE RULES (NON-NEGOTIABLE)
+-------------------------------------------------
+
+• Everything must be shop_id driven
+• No hardcoded shops
+• No separate deployments
+• No static homepages
+• No client-side trust for money or orders
+• Security at database + server level is mandatory
+
+-------------------------------------------------
+TECH STACK
+-------------------------------------------------
+
+Frontend: Next.js (App Router)
+Backend: Supabase (PostgreSQL, Auth, Storage, Edge Functions)
+Hosting: Vercel
+Messaging: WhatsApp (wa.me links only in phase-1)
+
+-------------------------------------------------
+REAL WORLD BUSINESS FLOW
+-------------------------------------------------
+
+USER:
+- QR scan → /s/[slug]
+- Login with Name + Phone + Consent (no password)
+- Device & behavior auto tracking
+- View menu → create order
+- Order status: PENDING_PAYMENT
+- Pay directly to shop (Cash or UPI)
+- Wait for admin confirmation
+- After admin verifies payment:
+  → Professional bill generated (PDF)
+  → User can download bill
+  → User can open WhatsApp to receive bill
+
+IMPORTANT:
+User NEVER orders from WhatsApp.
+WhatsApp is used ONLY to send bills and receipts.
+
+-------------------------------------------------
+SHOP ADMIN
+-------------------------------------------------
+
+- Password protected login
+- Can only access own shop data
+- Live orders
+- Payment verification (cash / upi)
+- Menu & price control
+- Offers creation
+- Customer list
+- Today dashboard:
+   • today total orders
+   • today total sale
+   • cash vs upi
+   • pending / paid
+   • top items
+   • peak time
+- Data export (CSV/PDF)
+
+-------------------------------------------------
+SUPER ADMIN
+-------------------------------------------------
+
+- Full platform access
+- Create/suspend shops
+- Create shop admins
+- Themes & sections system
+- Subscription control
+- Global analytics
+- All shops, all users, all orders
+- Behavior intelligence
+- Platform-wide data export
+
+-------------------------------------------------
+NO-CODE SHOP WEBSITE SYSTEM
+-------------------------------------------------
+
+Every shop home page must be generated from database sections.
+
+shop_sections controls:
+- hero
+- offers
+- menu
+- ads
+- feedback
+- whatsapp
+- gallery
+
+Changing DB data must change website without code edits.
+
+-------------------------------------------------
+PAYMENT & BILL SYSTEM
+-------------------------------------------------
+
+- Shop adds UPI ID / QR
+- User pays directly to shop
+- Admin verifies payment
+- System generates professional PDF bill:
+   • shop logo
+   • shop address
+   • items + qty + price
+   • total
+   • payment mode
+   • paid stamp
+   • order id
+- User can download bill
+- WhatsApp bill link available
+
+-------------------------------------------------
+USER DATA SYSTEM
+-------------------------------------------------
+
+users table must store:
+
+id, shop_id, name, phone,
+first_visit, last_visit, total_visits,
+device_type, os, browser, user_agent,
+screen_width, screen_height, language,
+ip_address, city,
+total_orders, total_spent, avg_bill, last_offer_sent
+
+user_behavior table:
+
+id, user_id, shop_id,
+event_type (view_item, add_to_cart, exit, payment_click, order),
+item_id, time_spent, page, created_at
+
+Both shop admin and super admin must be able to view analytics.
+
+-------------------------------------------------
+TODAY DASHBOARD (CRITICAL FEATURE)
+-------------------------------------------------
+
+Shop admin dashboard must show:
+
+- Today total orders
+- Today total revenue
+- Today cash total
+- Today upi total
+- Paid vs pending
+- Unique customers today
+- Average bill today
+- Top selling item today
+- Peak hour today
+
+-------------------------------------------------
+DATA EXPORT SYSTEM
+-------------------------------------------------
+
+- Shop admin → only own shop data
+- Super admin → full platform data
+- Users, orders, bills, behavior, reports
+- CSV, PDF, JSON
+- Export logs
+- Rate limit
+- Server-side only
+
+-------------------------------------------------
+SECURITY (MANDATORY)
+-------------------------------------------------
+
+- Supabase Auth for admins
+- Roles: super_admin, shop_admin
+- RLS enabled on all tables
+- Every business table must contain shop_id
+- Orders can only be created by server logic
+- Prices must be fetched from DB, not client
+- Payment status only admin can change
+- Rate limiting
+- Abuse detection
+- Audit logs
+- Soft delete
+- Daily backups
+
+-------------------------------------------------
+WHAT I WANT FROM YOU
+-------------------------------------------------
+
+1. Analyze this entire system like a real startup architect.
+2. If any important feature is missing, ADD it.
+3. If any feature is weak, IMPROVE it.
+4. If any feature is unnecessary or risky, REMOVE or REPLACE it.
+5. Then design the final system architecture.
+6. Then generate database schema with security rules.
+7. Then create coding structure and development roadmap.
+
+Build this as a real SaaS foundation, not a demo app.
+Think in terms of scalability, security, business reality, and future monetization.

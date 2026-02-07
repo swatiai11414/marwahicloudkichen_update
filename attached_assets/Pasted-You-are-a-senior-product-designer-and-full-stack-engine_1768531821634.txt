@@ -1,0 +1,124 @@
+You are a senior product designer and full-stack engineer building the CUSTOMER SIDE
+of a real multi-tenant SaaS product called:
+
+HDOS – Hotel Digital Operating System.
+
+This is not a demo website. This is a production-grade customer experience
+for hotels and restaurants in India.
+
+-------------------------------------------------
+CORE IDEA
+-------------------------------------------------
+Each shop is only a database record.
+One codebase serves unlimited shops.
+
+Every customer enters via:
+QR Scan → /s/[slug]
+
+-------------------------------------------------
+CUSTOMER ENTRY & LOGIN
+-------------------------------------------------
+- Customer must login with Name + Phone + Consent.
+- No password.
+- After first login, user should be auto-recognized.
+- System must capture device and environment data automatically:
+  device type, OS, browser, user agent, screen size, language, IP, city.
+
+-------------------------------------------------
+CUSTOMER FEATURES (MUST IMPLEMENT)
+-------------------------------------------------
+
+1. EASY ENTRY
+- QR scan opens dynamic shop page.
+- Lightweight login modal (name + phone).
+- Clear consent text.
+
+2. SMART SHOP PAGE
+- Shop logo, banner, address, timings.
+- Dynamic sections from database:
+  hero, offers, menu, gallery, feedback, WhatsApp.
+- Theme-based UI.
+- Highlight offers and today’s special.
+
+3. MENU SYSTEM
+- Category wise menu.
+- Item image, price, availability.
+- Veg/Non-veg tags.
+- Bestseller tag.
+- Search and filter.
+- Add to cart, quantity control.
+
+4. ORDER EXPERIENCE
+- Live cart.
+- Auto price calculation.
+- Special instruction field.
+- Table / token number support.
+- Secure order placement.
+- Order status: PENDING_PAYMENT, PAID, CANCELLED.
+
+5. PAYMENT VIEW (REAL WORLD STYLE)
+- Cash option.
+- UPI option (shop UPI + QR).
+- Copy UPI ID.
+- “Payment done” screen.
+- Waiting for admin confirmation.
+
+6. BILL & RECEIPT
+- Professional bill view.
+- Download PDF bill.
+- “Get bill on WhatsApp” button.
+- Order ID and paid confirmation.
+- QR bill verification.
+
+7. OFFERS & LOYALTY (BASE)
+- Show active offers.
+- Visit-based rewards (foundation).
+- Repeat customer recognition.
+
+8. FEEDBACK & TRUST
+- Feedback form.
+- Contact / help page.
+- Privacy & data usage notice.
+
+-------------------------------------------------
+USER TRACKING (INVISIBLE BUT POWERFUL)
+-------------------------------------------------
+Track and store:
+
+- page views
+- item views
+- add to cart
+- remove from cart
+- order placed
+- payment clicked
+- exit without order
+- time spent per page
+
+Store in user_behavior table.
+
+-------------------------------------------------
+IMPORTANT RULES
+-------------------------------------------------
+- No hardcoded shops.
+- Everything must be shop_id driven.
+- No client-side trust for price or payment.
+- UI can be simple, system logic must be strong.
+- System must be mobile-first.
+- Handle WhatsApp edge cases (not installed, desktop, etc).
+- Respect consent and privacy.
+
+-------------------------------------------------
+WHAT YOU SHOULD DO
+-------------------------------------------------
+1. Design the full customer journey.
+2. Suggest any missing but important customer features.
+3. Remove anything unnecessary or harmful.
+4. Then implement the customer-side architecture:
+   - pages
+   - components
+   - state management
+   - tracking system
+   - API interactions.
+
+This must feel like a real restaurant operating system,
+not just a QR menu website.
