@@ -56,7 +56,7 @@ jobs:
       - name: Run database migrations
         run: npm run db:push
         env:
-          DATABASE_URL: postgresql://Swatiai11414:Swatiai@@@###2003@localhost:5432/hdos
+          DATABASE_URL: postgresql://Swatiai11414:Swatiai%40%40%40%23%23%23%23@localhost:5432/hdos
 
       - name: Build application
         run: npm run build
