@@ -175,7 +175,7 @@ export default function SuperAdminOffers() {
       minVisits: parseInt(formData.get("minVisits") as string) || 0,
       minOrderAmount: formData.get("minOrderAmount") as string || undefined,
       expiryDate: formData.get("expiryDate")
-        ? new Date(formData.get("expiryDate") as string).toISOString()
+        ? new Date(formData.get("expiryDate") as string)
         : undefined,
       isActive: formData.get("isActive") === "on",
     };
