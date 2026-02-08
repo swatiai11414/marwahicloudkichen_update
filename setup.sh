@@ -335,43 +335,6 @@ fi
 echo ""
 
 # ===========================================
-# Step 14: Setup Ngrok (Optional)
-# ===========================================
-echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${YELLOW}║  Step 14: Setup Ngrok (Optional)...                         ║${NC}"
-echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
-
-read -p "Do you want to set up ngrok for public URL? (y/n): " -n 1 -r
-echo ""
-
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "Setting up ngrok..."
-    
-    if command -v ngrok &> /dev/null; then
-        echo -e "${GREEN}✓ Ngrok is already installed${NC}"
-    else
-        wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz -O /tmp/ngrok.tgz 2>/dev/null || \
-        curl -sL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz -o /tmp/ngrok.tgz 2>/dev/null
-        
-        if [ -f /tmp/ngrok.tgz ]; then
-            sudo tar -xzf /tmp/ngrok.tgz -C /usr/local/bin ngrok 2>/dev/null
-            rm /tmp/ngrok.tgz
-            if command -v ngrok &> /dev/null; then
-                echo -e "${GREEN}✓ Ngrok installed successfully${NC}"
-                echo -e "${CYAN}  Version: $(ngrok --version)${NC}"
-            else
-                echo -e "${RED}✗ Failed to install ngrok${NC}"
-            fi
-        else
-            echo -e "${RED}✗ Failed to download ngrok${NC}"
-        fi
-    fi
-else
-    echo -e "${YELLOW}Skipping ngrok setup${NC}"
-fi
-echo ""
-
-# ===========================================
 # Final Summary
 # ===========================================
 echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
@@ -398,10 +361,6 @@ echo -e "${CYAN}🚀 Available Commands:${NC}"
 echo "  npm run dev    : Start development server"
 echo "  npm run build  : Build for production"
 echo "  npm start      : Start production server"
-
-if command -v ngrok &> /dev/null; then
-    echo "  ngrok http $PORT_NUMBER : Create public URL"
-fi
 
 echo ""
 echo -e "${CYAN}🌐 Server URL:${NC} http://localhost:$PORT_NUMBER"
