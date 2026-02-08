@@ -14,27 +14,28 @@ jobs:
       PORT: 5000
 
     steps:
+      # -------- Checkout Code --------
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # ---------- Node 24 ----------
+      # -------- Setup Node 24 --------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
 
-      # ---------- Install Dependencies ----------
+      # -------- Install Dependencies --------
       - name: Install Dependencies
         run: npm install
 
-      # ---------- Run setup.sh ----------
+      # -------- Run setup.sh --------
       - name: Run setup.sh (DB + App Setup)
         run: |
           chmod +x setup.sh
           ./setup.sh
 
-      # ---------- Install ngrok ----------
+      # -------- Install ngrok --------
       - name: Install ngrok
         run: |
           sudo apt update
@@ -46,19 +47,24 @@ jobs:
           sudo apt update
           sudo apt install ngrok
 
-      # ---------- Add ngrok Token ----------
+      # -------- Add ngrok Token (IMPORTANT) --------
       - name: Setup ngrok Auth Token
-        run: ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+        run: |
+          if [ -z "${{ secrets.NGROK_AUTH_TOKEN }}" ]; then
+            echo "NGROK TOKEN MISSING"
+            exit 1
+          fi
+          ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
 
-      # ---------- Start App ----------
+      # -------- Start App --------
       - name: Start Server
         run: |
           npm start &
           sleep 20
 
-      # ---------- Port Forward 5000 ----------
+      # -------- Start ngrok Tunnel --------
       - name: Start ngrok Tunnel (Port 5000)
         run: |
           ngrok http 5000 > ngrok.log &
           sleep 10
-          curl http://127.0.0.1:4040/api/tunnels
+          curl http://127.0.0.1:4040/api/tunnels || true
