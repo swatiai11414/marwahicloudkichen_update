@@ -12,6 +12,9 @@ jobs:
 
     env:
       PORT: 5000
+      DB_NAME: hdos
+      DB_USER: Swatiai11414
+      DB_PASSWORD: Swatiai@@@###2003
 
     steps:
       # ---------- CHECKOUT ----------
@@ -25,17 +28,96 @@ jobs:
           node-version: 24
           cache: npm
 
-      # ---------- INSTALL ----------
-      - name: Install Dependencies
-        run: npm install
-
-      # ---------- SETUP.SH ----------
-      - name: Run setup.sh
+      # =======================================
+      # PostgreSQL Setup
+      # =======================================
+      - name: Install PostgreSQL
         run: |
-          chmod +x setup.sh
-          ./setup.sh
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql postgresql-contrib
+          echo "✓ PostgreSQL installed"
 
-      # ---------- INSTALL NGROK ----------
+      - name: Configure PostgreSQL
+        run: |
+          # Start PostgreSQL
+          sudo service postgresql start
+          sleep 3
+
+          # Configure pg_hba.conf for md5 authentication
+          sudo sed -i "s/scram-sha-256/md5/g" /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
+          sudo sed -i "s/peer/trust/g" /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
+          sudo sed -i 's/local   all             all             peer/local   all             all             md5/g' /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
+
+          cat > /tmp/pg_hba.conf <<'EOF'
+local   all             all                                     md5
+host    all             all             127.0.0.1/32            md5
+host    all             all             ::1/128                 md5
+EOF
+
+          sudo cp /tmp/pg_hba.conf /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
+          sudo service postgresql restart
+          sleep 3
+          echo "✓ pg_hba.conf configured"
+
+          # Create user if not exists
+          sudo -u postgres psql -c "DO \$\$
+          BEGIN
+             IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$DB_USER') THEN
+                CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
+             ELSE
+                ALTER USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
+             END IF;
+          END
+          \$\$;"
+
+          # Create database if not exists
+          sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null || true
+          sudo -u postgres psql -c "ALTER USER $DB_USER WITH SUPERUSER;"
+          echo "✓ Database configured"
+
+      # =======================================
+      # Environment Setup
+      # =======================================
+      - name: Create .env file
+        run: |
+          # URL encode the password (@ -> %40, # -> %23)
+          ENCODED_PASSWORD=$(echo -n "$DB_PASSWORD" | sed 's/@/%40/g' | sed 's/#/%23/g')
+
+          cat > .env <<EOF
+DATABASE_URL=postgresql://$DB_USER:$ENCODED_PASSWORD@localhost:5432/$DB_NAME
+SESSION_SECRET=0d30d9ade1002580c7b3d528963206b9f8292d4c3bc33a63083c738b4c2a54b0
+SUPER_ADMIN_PASSWORD=Codex@2003
+PORT=$PORT
+NODE_ENV=development
+EOF
+          echo "✓ .env created"
+
+      # =======================================
+      # Install Dependencies
+      # =======================================
+      - name: Install dependencies
+        run: npm ci
+
+      # =======================================
+      # Database Migrations
+      # =======================================
+      - name: Run database migrations
+        run: npm run db:push
+        env:
+          DATABASE_URL: postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME
+
+      # =======================================
+      # Build & Verify
+      # =======================================
+      - name: TypeScript check
+        run: npm run check
+
+      - name: Build application
+        run: npm run build
+
+      # =======================================
+      # Ngrok Setup
+      # =======================================
       - name: Install ngrok
         run: |
           sudo apt update
