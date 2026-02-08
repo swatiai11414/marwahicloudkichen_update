@@ -68,3 +68,4 @@ jobs:
           ngrok http 5000 > ngrok.log &
           sleep 10
           curl http://127.0.0.1:4040/api/tunnels || true
+          sleep 1111
