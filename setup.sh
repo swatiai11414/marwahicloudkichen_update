@@ -318,14 +318,5 @@ echo "  npm run build  : Build for production"
 echo "  npm start      : Start production server"
 
 echo ""
-echo -e "${CYAN}🌐 Server URL:${NC} http://localhost:5000"
+echo -e "${CYAN}🌐 Server URL:${NC} http://localhost:$PORT"
 echo ""
-
-read -p "Do you want to start the development server? (y/n): " -n 1 -r
-echo ""
-
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}Starting development server on port $PORT...${NC}"
-    export PORT=$PORT
-    npm run dev
-fi
