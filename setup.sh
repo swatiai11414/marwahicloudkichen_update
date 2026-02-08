@@ -123,50 +123,62 @@ echo -e "${YELLOW}╔═══════════════════�
 echo -e "${YELLOW}║  Step 4: Configuring PostgreSQL...                          ║${NC}"
 echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
+# Find PostgreSQL version
+PG_VERSION=$(ls -d /etc/postgresql/*/main 2>/dev/null | head -1 | grep -oP '\d+')
+if [ -z "$PG_VERSION" ]; then
+    PG_VERSION=16
+fi
+
+echo "PostgreSQL version: $PG_VERSION"
+
+# Create proper pg_hba.conf with md5 authentication
+echo "Configuring pg_hba.conf..."
+sudo bash -c "cat > /etc/postgresql/$PG_VERSION/main/pg_hba.conf <<'EOF'
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+local   all             all                                     md5
+host    all             all             127.0.0.1/32            md5
+host    all             all             ::1/128                 md5
+EOF"
+
+echo "✓ pg_hba.conf created"
+
 # Start PostgreSQL
 echo "Starting PostgreSQL service..."
 sudo service postgresql start
 sleep 3
 echo -e "${GREEN}✓ PostgreSQL service started${NC}"
 
-# Configure pg_hba.conf for md5 authentication
-echo "Configuring pg_hba.conf for md5 authentication..."
-sudo sed -i "s/scram-sha-256/md5/g" /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
-sudo sed -i "s/peer/trust/g" /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
-sudo sed -i 's/local   all             all             peer/local   all             all             md5/g' /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
+# Drop existing user and database for clean setup
+echo "Setting up fresh database and user..."
+echo "DROP DATABASE IF EXISTS $DB_NAME;" | sudo -u postgres psql 2>/dev/null || true
+echo "DROP USER IF EXISTS $DB_USER CASCADE;" | sudo -u postgres psql 2>/dev/null || true
+sleep 1
 
-cat > /tmp/pg_hba.conf <<'EOF'
-local   all             postgres                                trust
-local   all             all                                     md5
-host    all             all             127.0.0.1/32            md5
-host    all             all             ::1/128                 md5
-EOF
-
-sudo cp /tmp/pg_hba.conf /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
-sudo service postgresql restart
-sleep 3
-echo -e "${GREEN}✓ pg_hba.conf configured${NC}"
-
-# Create user if not exists
+# Create user
 echo "Creating user '$DB_USER'..."
-sudo -u postgres psql -c "DO \$\$
-BEGIN
-   IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$DB_USER') THEN
-      CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
-   ELSE
-      ALTER USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
-   END IF;
-END
-\$\$;"
-echo -e "${GREEN}✓ User '$DB_USER' created/updated${NC}"
+echo "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD' SUPERUSER;" | sudo -u postgres psql
+echo -e "${GREEN}✓ User '$DB_USER' created${NC}"
 
-# Create database if not exists
+# Create database
 echo "Creating database '$DB_NAME'..."
-sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null || true
+echo "CREATE DATABASE $DB_NAME OWNER $DB_USER;" | sudo -u postgres psql
 echo -e "${GREEN}✓ Database '$DB_NAME' created${NC}"
 
-sudo -u postgres psql -c "ALTER USER $DB_USER WITH SUPERUSER;" 2>/dev/null || true
-echo -e "${GREEN}✓ User privileges configured${NC}"
+# Restart PostgreSQL to apply all changes
+echo "Restarting PostgreSQL..."
+sudo service postgresql restart
+sleep 3
+
+# Test connection
+echo "Testing database connection..."
+export PGPASSWORD="$DB_PASSWORD"
+if psql -h localhost -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" > /dev/null 2>&1; then
+    echo -e "${GREEN}✓ Database connection successful!${NC}"
+else
+    echo -e "${RED}✗ Database connection failed!${NC}"
+    ERROR_COUNT=$((ERROR_COUNT + 1))
+fi
+
 echo ""
 
 # ===========================================
