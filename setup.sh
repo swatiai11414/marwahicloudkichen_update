@@ -150,18 +150,18 @@ echo -e "${GREEN}✓ PostgreSQL service started${NC}"
 
 # Drop existing user and database for clean setup
 echo "Setting up fresh database and user..."
-echo "DROP DATABASE IF EXISTS $DB_NAME;" | sudo -u postgres psql 2>/dev/null || true
-echo "DROP USER IF EXISTS $DB_USER CASCADE;" | sudo -u postgres psql 2>/dev/null || true
+sudo su - postgres -c "psql -c \"DROP DATABASE IF EXISTS $DB_NAME;\"" 2>/dev/null || true
+sudo su - postgres -c "psql -c \"DROP USER IF EXISTS $DB_USER CASCADE;\"" 2>/dev/null || true
 sleep 1
 
 # Create user
 echo "Creating user '$DB_USER'..."
-echo "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD' SUPERUSER;" | sudo -u postgres psql
+sudo su - postgres -c "psql -c \"CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD' SUPERUSER;\""
 echo -e "${GREEN}✓ User '$DB_USER' created${NC}"
 
 # Create database
 echo "Creating database '$DB_NAME'..."
-echo "CREATE DATABASE $DB_NAME OWNER $DB_USER;" | sudo -u postgres psql
+sudo su - postgres -c "psql -c \"CREATE DATABASE $DB_NAME OWNER $DB_USER;\""
 echo -e "${GREEN}✓ Database '$DB_NAME' created${NC}"
 
 # Restart PostgreSQL to apply all changes
