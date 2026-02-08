@@ -20,7 +20,7 @@ import { trackPageVisit } from "@/lib/track-visit";
 import { StoreStatusBadge } from "@/components/StoreStatusBadge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { StoreStatusResponse } from "@/shared/schema";
+import type { StoreStatusResponse } from "@shared/schema";
 import { canPlaceOrders } from "@/lib/availability";
 
 interface Shop {

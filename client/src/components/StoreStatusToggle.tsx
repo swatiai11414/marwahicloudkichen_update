@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import type { StoreStatusResponse } from "@/shared/schema";
+import type { StoreStatusResponse } from "@shared/schema";
 
 export function StoreStatusToggle() {
   const { toast } = useToast();

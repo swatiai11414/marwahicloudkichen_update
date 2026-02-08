@@ -21,7 +21,7 @@ import {
   Star
 } from "lucide-react";
 import { StoreStatusToggle } from "@/components/StoreStatusToggle";
-import type { Order, Shop } from "@/shared/schema";
+import type { Order, Shop } from "@shared/schema";
 
 interface DashboardStats {
   todayOrders: number;

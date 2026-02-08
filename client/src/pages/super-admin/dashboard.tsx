@@ -27,7 +27,7 @@ import {
   Eye
 } from "lucide-react";
 import { BulkAvailabilityManager } from "@/components/BulkAvailabilityManager";
-import type { Shop } from "@/shared/schema";
+import type { Shop } from "@shared/schema";
 
 interface SuperAdminStats {
   totalShops: number;
