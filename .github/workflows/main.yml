@@ -59,7 +59,7 @@ jobs:
       # -------- Start App --------
       - name: Start Server
         run: |
-          npm start &
+          npm run dev
           sleep 20
 
       # -------- Start ngrok Tunnel --------
