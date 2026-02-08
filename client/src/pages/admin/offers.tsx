@@ -40,7 +40,7 @@ export default function AdminOffers() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: Partial<Offer>) =>
+    mutationFn: (data: { shopId?: string; title: string; description?: string; discountType: string; discountValue: string; minVisits?: number; minOrderAmount?: string; expiryDate?: Date | string; isActive?: boolean }) =>
       apiRequest("POST", "/api/admin/offers", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/offers"] });

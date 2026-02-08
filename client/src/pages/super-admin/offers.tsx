@@ -112,7 +112,7 @@ export default function SuperAdminOffers() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (offerData: { shopId: string; title: string; description?: string; discountType: string; discountValue: string; minVisits?: number; minOrderAmount?: string; expiryDate?: string; isActive?: boolean }) =>
+    mutationFn: (offerData: { shopId: string; title: string; description?: string; discountType: string; discountValue: string; minVisits?: number; minOrderAmount?: string; expiryDate?: string | Date; isActive?: boolean }) =>
       apiRequest("POST", `/api/super-admin/shops/${offerData.shopId}/offers`, offerData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/super-admin/offers"] });
