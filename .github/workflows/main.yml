@@ -30,6 +30,8 @@ jobs:
         run: |
           sudo service postgresql start
           sleep 3
+          
+          # Create user if not exists
           sudo -u postgres psql -c "DO \$\$
           BEGIN
              IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'Swatiai11414') THEN
@@ -39,13 +41,10 @@ jobs:
              END IF;
           END
           \$\$;"
-          sudo -u postgres psql -c "DO \$\$
-          BEGIN
-             IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'hdos') THEN
-                CREATE DATABASE hdos OWNER Swatiai11414;
-             END IF;
-          END
-          \$\$;"
+          
+          # Create database if not exists
+          sudo -u postgres psql -c "CREATE DATABASE hdos OWNER Swatiai11414;" 2>/dev/null || true
+          
           sudo -u postgres psql -c "ALTER USER Swatiai11414 WITH SUPERUSER;"
           echo "Database configured"
 

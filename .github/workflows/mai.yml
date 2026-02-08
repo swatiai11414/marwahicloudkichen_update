@@ -47,13 +47,7 @@ jobs:
              END IF;
           END
           \$\$;"
-          sudo -u postgres psql -c "DO \$\$
-          BEGIN
-             IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'hdos') THEN
-                CREATE DATABASE hdos OWNER Swatiai11414;
-             END IF;
-          END
-          \$\$;"
+          sudo -u postgres psql -c "CREATE DATABASE hdos OWNER Swatiai11414;" 2>/dev/null || true
           sudo -u postgres psql -c "ALTER USER Swatiai11414 WITH SUPERUSER;"
           echo "✓ Database configured"
 
