@@ -108,6 +108,7 @@ sudo sed -i "s/peer/trust/g" /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || t
 sudo sed -i 's/local   all             all             peer/local   all             all             md5/g' /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
 
 cat > /tmp/pg_hba.conf <<'EOF'
+local   all             postgres                                trust
 local   all             all                                     md5
 host    all             all             127.0.0.1/32            md5
 host    all             all             ::1/128                 md5
