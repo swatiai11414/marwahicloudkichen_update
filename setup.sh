@@ -13,6 +13,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
 
 # Project Configuration
@@ -105,7 +106,7 @@ else
 fi
 
 # Enable PostgreSQL on boot
-sudo systemctl enable postgresql 2>/dev/null || sudo systemctl enable postgresql 2>/dev/null || true
+sudo systemctl enable postgresql 2>/dev/null || true
 
 # Wait for PostgreSQL to be ready
 echo "Waiting for PostgreSQL to be ready..."
@@ -148,37 +149,9 @@ echo -e "${GREEN}✓ Database and user created successfully${NC}"
 echo ""
 
 # ===========================================
-# Step 6: Configure PostgreSQL Authentication
+# Step 6: Test Database Connection
 # ===========================================
-echo -e "${YELLOW}Step 6: Configuring PostgreSQL authentication...${NC}"
-
-# Check if md5 authentication is configured for the user
-PG_HBA_CONF="/etc/postgresql/*/main/pg_hba.conf"
-if [ -f "$PG_HABA_CONF" ] 2>/dev/null || [ -f "/etc/postgresql/15/main/pg_hba.conf" ] 2>/dev/null; then
-    PG_HBA_CONF=$(find /etc/postgresql -name "pg_hba.conf" -type f | head -1)
-    
-    # Check if trust or md5 exists for localhost
-    if grep -q "127.0.0.1/32.*md5" "$PG_HBA_CONF" 2>/dev/null || \
-       grep -q "localhost.*md5" "$PG_HBA_CONF" 2>/dev/null; then
-        echo -e "${GREEN}✓ PostgreSQL authentication is configured${NC}"
-    else
-        echo "Configuring md5 authentication..."
-        # Add md5 authentication for localhost
-        sudo sed -i '/# TYPE  DATABASE        USER            ADDRESS                 METHOD/a # Allow local md5 authentication for HDOS\nlocal   all             all                                     md5\nhost    all             all             127.0.0.1/32            md5' "$PG_HBA_CONF" 2>/dev/null || true
-        echo -e "${GREEN}✓ Authentication configured${NC}"
-    fi
-else
-    echo -e "${YELLOW}⚠ pg_hba.conf not found, skipping auth config${NC}"
-fi
-
-# Reload PostgreSQL configuration
-sudo -u postgres psql -c "SELECT pg_reload_conf();" 2>/dev/null || true
-echo ""
-
-# ===========================================
-# Step 7: Test Database Connection
-# ===========================================
-echo -e "${YELLOW}Step 7: Testing database connection...${NC}"
+echo -e "${YELLOW}Step 6: Testing database connection...${NC}"
 
 # Export DATABASE_URL for testing
 export DATABASE_URL="postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME"
@@ -186,27 +159,14 @@ export DATABASE_URL="postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME"
 if pg_isready -h localhost -p 5432 -U $DB_USER -d $DB_NAME 2>/dev/null; then
     echo -e "${GREEN}✓ Database connection successful!${NC}"
 else
-    # Try with postgres user
-    if sudo -u postgres PGASSWORD="$DB_PASSWORD" psql -h localhost -U $DB_USER -d $DB_NAME -c "SELECT 1;" 2>/dev/null; then
-        echo -e "${GREEN}✓ Database connection successful (via postgres user)!${NC}"
-    else
-        echo -e "${RED}✗ Database connection failed${NC}"
-        echo -e "${YELLOW}Trying alternative connection...${NC}"
-        export PGUSER=postgres
-        export PGPASSWORD="$DB_PASSWORD"
-        if psql -h localhost -U postgres -d $DB_NAME -c "SELECT 1;" 2>/dev/null; then
-            echo -e "${GREEN}✓ Connected as postgres user${NC}"
-        else
-            echo -e "${YELLOW}⚠ Could not verify connection, continuing anyway...${NC}"
-        fi
-    fi
+    echo -e "${YELLOW}⚠ Could not verify connection, continuing anyway...${NC}"
 fi
 echo ""
 
 # ===========================================
-# Step 8: Install Project Dependencies
+# Step 7: Install Project Dependencies
 # ===========================================
-echo -e "${YELLOW}Step 8: Installing npm dependencies...${NC}"
+echo -e "${YELLOW}Step 7: Installing npm dependencies...${NC}"
 
 # Check if node_modules exists
 if [ -d "node_modules" ]; then
@@ -221,9 +181,9 @@ echo -e "${GREEN}✓ Dependencies installed${NC}"
 echo ""
 
 # ===========================================
-# Step 9: Configure Environment Variables
+# Step 8: Configure Environment Variables
 # ===========================================
-echo -e "${YELLOW}Step 9: Configuring environment variables...${NC}"
+echo -e "${YELLOW}Step 8: Configuring environment variables...${NC}"
 
 # Check if .env file exists
 if [ -f ".env" ]; then
@@ -264,9 +224,9 @@ fi
 echo ""
 
 # ===========================================
-# Step 10: Run Database Migrations
+# Step 9: Run Database Migrations
 # ===========================================
-echo -e "${YELLOW}Step 10: Running database migrations...${NC}"
+echo -e "${YELLOW}Step 9: Running database migrations...${NC}"
 
 # Update DATABASE_URL in current shell
 export DATABASE_URL="postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME"
@@ -282,9 +242,9 @@ fi
 echo ""
 
 # ===========================================
-# Step 11: Verify Installation
+# Step 10: Verify Installation
 # ===========================================
-echo -e "${YELLOW}Step 11: Verifying installation...${NC}"
+echo -e "${YELLOW}Step 10: Verifying installation...${NC}"
 
 # Run TypeScript check
 echo "Running TypeScript check..."
@@ -297,17 +257,118 @@ fi
 echo ""
 
 # ===========================================
-# Setup Complete
+# Step 11: Port Configuration
 # ===========================================
-echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║  SETUP COMPLETED SUCCESSFULLY!                             ║${NC}"
-echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
+echo -e "${YELLOW}Step 11: Configure server port...${NC}"
+
+# Ask for port number
+read -p "Enter port number to run the server (default: 5000): " -r
+echo ""
+
+if [[ -z "$REPLY" ]]; then
+    PORT_NUMBER="5000"
+else
+    PORT_NUMBER="$REPLY"
+fi
+
+echo "Using port: $PORT_NUMBER"
+
+# Update .env with selected port
+if [ -f ".env" ]; then
+    # Update PORT in .env file
+    sed -i "s/^PORT=.*/PORT=$PORT_NUMBER/" .env
+    echo -e "${GREEN}✓ Port updated in .env file${NC}"
+fi
+
+echo ""
+
+# ===========================================
+# Step 12: Ngrok Setup (Optional)
+# ===========================================
+echo -e "${YELLOW}Step 12: Ngrok Setup (Optional)...${NC}"
+
+read -p "Do you want to set up ngrok for public URL? (y/n): " -n 1 -r
+echo ""
+
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "Setting up ngrok..."
+    
+    # Check if ngrok is installed
+    if command -v ngrok &> /dev/null; then
+        echo -e "${YELLOW}Ngrok is already installed${NC}"
+    else
+        echo "Downloading and installing ngrok..."
+        
+        # Download ngrok
+        if command -v wget &> /dev/null; then
+            wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz -O /tmp/ngrok.tgz
+        elif command -v curl &> /dev/null; then
+            curl -sL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz -o /tmp/ngrok.tgz
+        else
+            echo -e "${RED}Error: Neither wget nor curl is installed${NC}"
+        fi
+        
+        if [ -f /tmp/ngrok.tgz ]; then
+            sudo tar -xzf /tmp/ngrok.tgz -C /usr/local/bin ngrok
+            rm /tmp/ngrok.tgz
+            echo -e "${GREEN}✓ Ngrok installed successfully${NC}"
+        else
+            echo -e "${RED}✗ Failed to download ngrok${NC}"
+        fi
+    fi
+    
+    # Authenticate ngrok (optional)
+    echo ""
+    read -p "Do you have a ngrok authtoken? (y/n): " -n 1 -r
+    echo ""
+    
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "To authenticate ngrok, run:"
+        echo -e "${CYAN}  ngrok config add-authtoken YOUR_AUTHTOKEN${NC}"
+        echo ""
+        echo "You can get your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken"
+    fi
+    
+    echo ""
+    echo -e "${GREEN}✓ Ngrok setup complete!${NC}"
+    echo ""
+    echo -e "${MAGENTA}╔════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${MAGENTA}║  NGROK USAGE INSTRUCTIONS:                              ║${NC}"
+    echo -e "${MAGENTA}╚════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo "1. Start your server first:"
+    echo -e "   ${CYAN}npm run dev${NC}"
+    echo ""
+    echo "2. In another terminal, run ngrok:"
+    echo -e "   ${CYAN}ngrok http $PORT_NUMBER${NC}"
+    echo ""
+    echo "3. You'll get a public URL like:"
+    echo -e "   ${GREEN}https://xxxx-xxxx.ngrok.io${NC}"
+    echo ""
+    echo "4. Use this URL to access your server publicly!"
+    echo ""
+else
+    echo -e "${YELLOW}Skipping ngrok setup${NC}"
+fi
+
+echo ""
+
+# ===========================================
+# Step 13: Start Server Options
+# ===========================================
+echo -e "${YELLOW}Step 13: Starting server options...${NC}"
+
+echo ""
+echo -e "${CYAN}╔════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}║  SETUP COMPLETED SUCCESSFULLY!                             ║${NC}"
+echo -e "${CYAN}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${CYAN}📦 Project Configuration:${NC}"
 echo "  - Database: $DB_NAME"
 echo "  - User: $DB_USER"
 echo "  - Node.js: $(node -v)"
 echo "  - npm: $(npm -v)"
+echo "  - Port: $PORT_NUMBER"
 echo ""
 echo -e "${CYAN}🔗 Connection String:${NC}"
 echo "  postgresql://$DB_USER:****@localhost:5432/$DB_NAME"
@@ -319,16 +380,15 @@ echo "  ${YELLOW}npm start${NC}     : Start production server"
 echo "  ${YELLOW}npm run check${NC}  : TypeScript type checking"
 echo "  ${YELLOW}npm run db:push${NC} : Push schema changes to database"
 echo ""
-echo -e "${CYAN}🌐 Server will start at:${NC} http://localhost:5000"
-echo ""
 
 # Ask if user wants to start the server
-read -p "Do you want to start the development server? (y/n) " -n 1 -r
+read -p "Do you want to start the development server now? (y/n): " -n 1 -r
 echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}Starting development server...${NC}"
+    echo -e "${YELLOW}Starting development server on port $PORT_NUMBER...${NC}"
     echo -e "${YELLOW}Press Ctrl+C to stop${NC}"
     echo ""
+    export PORT=$PORT_NUMBER
     npm run dev
 fi
