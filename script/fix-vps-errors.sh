@@ -22,26 +22,26 @@ echo "Step 1: Fixing PostgreSQL authentication..."
 
 # Stop PostgreSQL
 echo "Stopping PostgreSQL..."
-sudo service postgresql stop
+sudo service postgresql stop 2>/dev/null || true
 sleep 2
 
-# Find PostgreSQL version and config directory
+# Find PostgreSQL version
 PG_VERSION=$(ls -d /etc/postgresql/*/main 2>/dev/null | head -1 | grep -oP '\d+')
 if [ -z "$PG_VERSION" ]; then
-    PG_VERSION=$(sudo -u postgres psql --version 2>/dev/null | grep -oP '\d+' | head -1)
+    PG_VERSION=16
 fi
 
 echo "PostgreSQL version: $PG_VERSION"
 
-# Create proper pg_hba.conf
+# Create proper pg_hba.conf directly with sudo bash
 echo "Creating pg_hba.conf..."
-sudo bash -c 'cat > /tmp/pg_hba.conf <<EOF
+sudo bash -c "cat > /etc/postgresql/$PG_VERSION/main/pg_hba.conf <<'PGEOF'
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
-local   all             postgres                                trust
 local   all             all                                     md5
 host    all             all             127.0.0.1/32            md5
 host    all             all             ::1/128                 md5
-EOF'
+PGEOF"
+
 echo "✓ pg_hba.conf created"
 
 # Start PostgreSQL
@@ -57,32 +57,45 @@ if ! sudo service postgresql status > /dev/null 2>&1; then
 fi
 echo "✓ PostgreSQL is running"
 
-# Drop and recreate user with correct password
+# Drop and recreate user
 echo "Recreating user '$DB_USER'..."
-sudo -u postgres psql -c "DROP USER IF EXISTS $DB_USER;" 2>/dev/null || true
-sleep 1
-sudo -u postgres psql -c "DROP OWNED BY $DB_USER;" 2>/dev/null || true
-sleep 1
-sudo -u postgres psql -c "DROP USER IF EXISTS $DB_USER;" 2>/dev/null || true
-sleep 1
-echo "DROP USER IF EXISTS $DB_USER;" | sudo -u postgres psql
+echo "DROP USER IF EXISTS $DB_USER CASCADE;" | sudo -u postgres psql 2>/dev/null || true
+sleep 2
 echo "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD' SUPERUSER;" | sudo -u postgres psql
 echo "✓ User recreated"
 
 # Drop and recreate database
 echo "Recreating database '$DB_NAME'..."
-echo "DROP DATABASE IF EXISTS $DB_NAME;" | sudo -u postgres psql
+echo "DROP DATABASE IF EXISTS $DB_NAME;" | sudo -u postgres psql 2>/dev/null || true
 echo "CREATE DATABASE $DB_NAME OWNER $DB_USER;" | sudo -u postgres psql
 echo "✓ Database recreated"
 
+# Restart PostgreSQL to apply all changes
+echo "Restarting PostgreSQL..."
+sudo service postgresql restart
+sleep 3
+
 # Test connection
 echo "Testing connection..."
-PGPASSWORD="$DB_PASSWORD" psql -h localhost -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" > /dev/null 2>&1
+export PGPASSWORD="$DB_PASSWORD"
+psql -h localhost -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" > /dev/null 2>&1
 if [ $? -eq 0 ]; then
     echo "✓ PostgreSQL connection successful!"
 else
-    echo "ERROR: Connection test failed"
-    exit 1
+    echo "WARNING: Connection test failed, trying alternative..."
+    
+    # Alternative: Use ALTER USER to set password
+    echo "ALTER USER $DB_USER WITH PASSWORD '$DB_PASSWORD';" | sudo -u postgres psql
+    sleep 2
+    
+    export PGPASSWORD="$DB_PASSWORD"
+    psql -h localhost -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "✓ PostgreSQL connection successful!"
+    else
+        echo "ERROR: Connection test failed"
+        exit 1
+    fi
 fi
 
 # ===========================================
@@ -91,27 +104,33 @@ fi
 echo ""
 echo "Step 2: Fixing directory permissions..."
 
+# Get current directory
+CURRENT_DIR=$(pwd)
+echo "Project directory: $CURRENT_DIR"
+
 # Fix node_modules/.vite permissions
-if [ -d "/home/ubuntu/node_modules/.vite" ]; then
-    sudo chmod -R 777 "/home/ubuntu/node_modules/.vite"
-    echo "✓ Fixed /home/ubuntu/node_modules/.vite permissions"
+VITE_DIR="$CURRENT_DIR/node_modules/.vite"
+if [ -d "$VITE_DIR" ]; then
+    sudo chmod -R 777 "$VITE_DIR"
+    echo "✓ Fixed $VITE_DIR permissions"
 else
-    # Create the directory with proper permissions
-    sudo mkdir -p "/home/ubuntu/node_modules/.vite"
-    sudo chmod -R 777 "/home/ubuntu/node_modules/.vite"
-    echo "✓ Created /home/ubuntu/node_modules/.vite"
+    sudo mkdir -p "$VITE_DIR"
+    sudo chmod -R 777 "$VITE_DIR"
+    echo "✓ Created $VITE_DIR"
 fi
 
-# Fix uploads directory if exists
-if [ -d "/home/ubuntu/uploads" ]; then
-    sudo chmod -R 777 "/home/ubuntu/uploads"
-    echo "✓ Fixed /home/ubuntu/uploads permissions"
+# Fix uploads directory
+UPLOADS_DIR="$CURRENT_DIR/uploads"
+if [ -d "$UPLOADS_DIR" ]; then
+    sudo chmod -R 777 "$UPLOADS_DIR"
+    echo "✓ Fixed $UPLOADS_DIR permissions"
 fi
 
-# Fix attached_assets directory if exists
-if [ -d "/home/ubuntu/attached_assets" ]; then
-    sudo chmod -R 777 "/home/ubuntu/attached_assets"
-    echo "✓ Fixed /home/ubuntu/attached_assets permissions"
+# Fix attached_assets directory
+ASSETS_DIR="$CURRENT_DIR/attached_assets"
+if [ -d "$ASSETS_DIR" ]; then
+    sudo chmod -R 777 "$ASSETS_DIR"
+    echo "✓ Fixed $ASSETS_DIR permissions"
 fi
 
 echo ""
