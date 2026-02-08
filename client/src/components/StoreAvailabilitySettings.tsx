@@ -33,6 +33,8 @@ const availabilitySchema = z.object({
   overrideReason: z.string().optional(),
 });
 
+type AvailabilityFormData = z.infer<typeof availabilitySchema>;
+
 export type { AvailabilityFormData };
 
 interface StoreAvailabilitySettingsProps {

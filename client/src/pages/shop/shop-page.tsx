@@ -296,7 +296,7 @@ function ShopPageContent() {
       return;
     }
 
-    if (!customerInfo.pinCode.trim()) {
+    if (!customerInfo.pinCode?.trim()) {
       toast({ title: "Please enter your pin code", variant: "destructive" });
       return;
     }
@@ -308,7 +308,7 @@ function ShopPageContent() {
 
     // Check if pin code is allowed
     const allowedPinCodes = data?.shop?.allowedPinCodes?.split(',').map(code => code.trim()) || ['495118'];
-    if (!allowedPinCodes.includes(customerInfo.pinCode)) {
+    if (!allowedPinCodes.includes(customerInfo.pinCode!)) {
       toast({ 
         title: "Delivery not available", 
         description: "Sorry, we don't deliver to this pin code area.",
@@ -339,8 +339,8 @@ function ShopPageContent() {
     const orderCustomer = {
       name: customerInfo.name.trim(),
       phone: customerInfo.phone.trim(),
-      address: customerInfo.address.trim(),
-      pinCode: customerInfo.pinCode.trim(),
+      address: customerInfo.address?.trim() || "",
+      pinCode: customerInfo.pinCode?.trim() || "",
       hasConsent: customerInfo.hasConsent,
     };
 
@@ -349,7 +349,7 @@ function ShopPageContent() {
       customer: orderCustomer,
       tableQr: tableNumber?.trim() || undefined,
       notes: orderNotes?.trim() || undefined,
-      deliveryAddress: customerInfo.address ? `${customerInfo.address.trim()}, Pin Code: ${customerInfo.pinCode}` : `Pin Code: ${customerInfo.pinCode}`,
+      deliveryAddress: customerInfo.address ? `${customerInfo.address.trim()}, Pin Code: ${customerInfo.pinCode!.trim()}` : `Pin Code: ${customerInfo.pinCode!.trim()}`,
     });
   };
 
