@@ -14,32 +14,32 @@ jobs:
       PORT: 5000
 
     steps:
-      # -------- Checkout Code --------
+      # ---------- CHECKOUT ----------
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # -------- Setup Node 24 --------
+      # ---------- NODE 24 ----------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
 
-      # -------- Install Dependencies --------
+      # ---------- INSTALL ----------
       - name: Install Dependencies
         run: npm install
 
-      # -------- Run setup.sh --------
-      - name: Run setup.sh (DB + App Setup)
+      # ---------- SETUP.SH ----------
+      - name: Run setup.sh
         run: |
           chmod +x setup.sh
           ./setup.sh
 
-      # -------- Install ngrok --------
+      # ---------- INSTALL NGROK ----------
       - name: Install ngrok
         run: |
           sudo apt update
-          sudo apt install -y unzip curl
+          sudo apt install -y curl unzip
           curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
             | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
           echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
@@ -47,25 +47,36 @@ jobs:
           sudo apt update
           sudo apt install ngrok
 
-      # -------- Add ngrok Token (IMPORTANT) --------
-      - name: Setup ngrok Auth Token
+      # ---------- CONFIG NGROK TOKEN ----------
+      - name: Configure ngrok Token
+        env:
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
         run: |
-          if [ -z "${{ secrets.NGROK_AUTH_TOKEN }}" ]; then
-            echo "NGROK TOKEN MISSING"
+          if [ -z "$NGROK_AUTH_TOKEN" ]; then
+            echo "❌ NGROK_AUTH_TOKEN missing in GitHub Secrets"
             exit 1
           fi
-          ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+          ngrok config add-authtoken "$NGROK_AUTH_TOKEN"
 
-      # -------- Start App --------
-      - name: Start Server
+      # ---------- START DEV SERVER BACKGROUND ----------
+      - name: Start Dev Server
         run: |
-          npm run dev
-          sleep 20
+          echo "Starting dev server..."
+          nohup npm run dev > dev.log 2>&1 &
+          sleep 25
+          echo "Dev server started"
 
-      # -------- Start ngrok Tunnel --------
-      - name: Start ngrok Tunnel (Port 5000)
+      # ---------- START NGROK BACKGROUND ----------
+      - name: Start ngrok Tunnel Port 5000
         run: |
-          ngrok http 5000 > ngrok.log &
-          sleep 10
+          echo "Starting ngrok..."
+          nohup ngrok http 5000 > ngrok.log 2>&1 &
+          sleep 15
+          echo "Ngrok running. Tunnel info:"
           curl http://127.0.0.1:4040/api/tunnels || true
-          sleep 1111
+
+      # ---------- KEEP WORKFLOW ALIVE ----------
+      - name: Keep Workflow Alive (Demo Only)
+        run: |
+          echo "Keeping workflow alive for demo..."
+          sleep 7200
