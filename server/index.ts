@@ -1,4 +1,11 @@
 import express, { type Request, Response, NextFunction, type Express } from "express";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file in development
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config({ path: ".env" });
+}
+
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import helmet from "helmet";
