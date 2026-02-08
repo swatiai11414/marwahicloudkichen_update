@@ -1,5 +1,5 @@
-name: HDOS CI/CD Pipeline 
- 
+name: HDOS CI/CD Pipeline
+
 on:
   push:
     branches: [main, master]
@@ -10,21 +10,6 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_USER: Swatiai11414
-          POSTGRES_PASSWORD: Swatiai@@@###2003
-          POSTGRES_DB: hdos
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U Swatiai11414 -d hdos"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,6 +19,44 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
+
+      - name: Install PostgreSQL
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql postgresql-contrib
+          echo "✓ PostgreSQL installed"
+
+      - name: Configure PostgreSQL
+        run: |
+          # Start PostgreSQL service
+          sudo service postgresql start
+          sudo service postgresql status || true
+
+          # Wait for PostgreSQL to be ready
+          for i in {1..10}; do
+            if sudo -u postgres psql -c "SELECT 1;" > /dev/null 2>&1; then
+              echo "✓ PostgreSQL is ready!"
+              break
+            fi
+            echo "Waiting for PostgreSQL... ($i/10)"
+            sleep 1
+          done
+
+          # Create database and user
+          echo "Creating database 'hdos' and user 'Swatiai11414'..."
+          sudo -u postgres psql -c "DO \$\$
+          BEGIN
+             IF NOT EXISTS (
+                SELECT FROM pg_catalog.pg_roles
+                WHERE  rolname = 'Swatiai11414') THEN
+                CREATE USER Swatiai11414 WITH PASSWORD 'Swatiai@@@###2003';
+             END IF;
+          END
+          \$\$;"
+          sudo -u postgres psql -c "SELECT 'CREATE DATABASE hdos OWNER Swatiai11414'
+          WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'hdos')\\gexec"
+          sudo -u postgres psql -c "ALTER USER Swatiai11414 WITH SUPERUSER;"
+          echo "✓ Database and user created"
 
       - name: Create .env file
         run: |
