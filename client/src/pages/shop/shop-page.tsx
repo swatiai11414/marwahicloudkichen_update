@@ -67,8 +67,8 @@ interface CustomerInfo {
   id?: string;
   name: string;
   phone: string;
-  address: string;
-  pinCode: string;
+  address?: string;
+  pinCode?: string;
   hasConsent: boolean;
 }
 

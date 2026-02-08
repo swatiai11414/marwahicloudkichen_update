@@ -88,7 +88,7 @@ export default function AdminSettings() {
       whatsappNumber: formData.get("whatsappNumber") as string || undefined,
       superAdminWhatsapp: formData.get("superAdminWhatsapp") as string || undefined,
       address: formData.get("address") as string || undefined,
-      deliveryCharge: formData.get("deliveryCharge") ? parseFloat(formData.get("deliveryCharge") as string) : 0,
+      deliveryCharge: formData.get("deliveryCharge") ? String(parseFloat(formData.get("deliveryCharge") as string)) : "0",
       allowedPinCodes: formData.get("allowedPinCodes") as string || "495118",
       about: formData.get("about") as string || undefined,
     });

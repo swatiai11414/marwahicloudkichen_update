@@ -532,7 +532,7 @@ export default function SuperAdminShops() {
                 <StoreAvailabilitySettings
                   shopId={selectedShopId || ""}
                   initialAvailability={availabilityData?.availability || null}
-                  onSave={(data) => saveAvailabilityMutation.mutate(data)}
+                  onSave={async (data) => saveAvailabilityMutation.mutate(data)}
                   isLoading={saveAvailabilityMutation.isPending}
                 />
               </TabsContent>

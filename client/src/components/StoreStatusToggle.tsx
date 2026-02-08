@@ -195,7 +195,7 @@ export function StoreStatusToggle() {
           
           <Button
             onClick={handleReset}
-            disabled={toggleMutation.isPending || status === "none"}
+            disabled={toggleMutation.isPending || status === "normal"}
             variant="outline"
           >
             {toggleMutation.isPending ? (

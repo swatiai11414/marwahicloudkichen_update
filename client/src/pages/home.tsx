@@ -6,7 +6,7 @@ import { FullPageLoader } from "@/components/loading-spinner";
 import type { Profile } from "@shared/schema";
 
 export default function Home() {
-  const { user, isLoading: authLoading, isAuthenticated } = useAuth();
+  const { isLoading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
 
   const { data: profile, isLoading: profileLoading } = useQuery<Profile>({

@@ -166,6 +166,7 @@ export interface IStorage {
 
   // Store Availability
   getStoreAvailability(shopId: string): Promise<StoreAvailability | undefined>;
+  updateStoreAvailability(id: string, data: Partial<InsertStoreAvailability>): Promise<StoreAvailability>;
   createOrUpdateStoreAvailability(shopId: string, data: Partial<InsertStoreAvailability>): Promise<StoreAvailability>;
   getStoreHolidays(shopId: string): Promise<StoreHoliday[]>;
   addStoreHoliday(holiday: InsertStoreHoliday): Promise<StoreHoliday>;
@@ -945,6 +946,15 @@ export class DatabaseStorage implements IStorage {
   async getStoreAvailability(shopId: string): Promise<StoreAvailability | undefined> {
     const result = await db.select().from(storeAvailability).where(eq(storeAvailability.shopId, shopId));
     return result[0] as StoreAvailability | undefined;
+  }
+
+  async updateStoreAvailability(id: string, data: Partial<InsertStoreAvailability>): Promise<StoreAvailability> {
+    const [updated] = await db
+      .update(storeAvailability)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(storeAvailability.id, id))
+      .returning();
+    return updated as StoreAvailability;
   }
 
   async createOrUpdateStoreAvailability(shopId: string, data: Partial<InsertStoreAvailability>): Promise<StoreAvailability> {

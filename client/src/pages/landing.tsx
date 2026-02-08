@@ -378,7 +378,7 @@ export default function LandingPage() {
                 <Button
                   className="flex-1 h-12 text-base font-semibold"
                   onClick={visitStore}
-                  disabled={selectedShopStatus && !canPlaceOrders(selectedShopStatus)}
+                  disabled={!!selectedShopStatus && !canPlaceOrders(selectedShopStatus)}
                 >
                   <Utensils className="mr-2 h-5 w-5" />
                   {selectedShopStatus && canPlaceOrders(selectedShopStatus) 

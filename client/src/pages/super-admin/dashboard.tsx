@@ -190,7 +190,7 @@ export default function SuperAdminDashboard() {
                 <div className="flex flex-col items-center justify-center py-8 text-center">
                   <Building2 className="mb-2 h-8 w-8 text-muted-foreground" />
                   <p className="text-muted-foreground">No shops yet</p>
-                  <Button variant="link" asChild>
+                  <Button variant="ghost" asChild>
                     <Link href="/super-admin/shops">Create your first shop</Link>
                   </Button>
                 </div>
