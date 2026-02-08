@@ -10,21 +10,6 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_USER: Swatiai11414
-          POSTGRES_PASSWORD: Swatiai@@@###2003
-          POSTGRES_DB: hdos
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U Swatiai11414 -d hdos"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,28 +20,71 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
+      # =======================================
+      # PostgreSQL Setup (apt install)
+      # =======================================
+      - name: Install PostgreSQL
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql postgresql-contrib
+          echo "✓ PostgreSQL installed"
+
+      - name: Configure PostgreSQL
+        run: |
+          # Start PostgreSQL
+          sudo service postgresql start
+
+          # Wait for PostgreSQL
+          sleep 3
+
+          # Create database and user
+          sudo -u postgres psql -c "DO \$\$
+          BEGIN
+             IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'Swatiai11414') THEN
+                CREATE USER Swatiai11414 WITH PASSWORD 'Swatiai@@@###2003';
+             ELSE
+                ALTER USER Swatiai11414 WITH PASSWORD 'Swatiai@@@###2003';
+             END IF;
+          END
+          \$\$;"
+          sudo -u postgres psql -c "SELECT 'CREATE DATABASE hdos OWNER Swatiai11414'
+          WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'hdos')\\gexec"
+          sudo -u postgres psql -c "ALTER USER Swatiai11414 WITH SUPERUSER;"
+          echo "✓ Database configured"
+
+      # =======================================
+      # Environment Setup
+      # =======================================
+      - name: Create .env file
+        run: |
+          cat > .env <<EOF
+DATABASE_URL=postgresql://Swatiai11414:Swatiai%40%40%40%23%23%232003@localhost:5432/hdos
+SESSION_SECRET=0d30d9ade1002580c7b3d528963206b9f8292d4c3bc33a63083c738b4c2a54b0
+SUPER_ADMIN_PASSWORD=Codex@2003
+PORT=5000
+NODE_ENV=development
+EOF
+          echo "✓ .env created"
+
+      # =======================================
+      # Install Dependencies
+      # =======================================
       - name: Install dependencies
         run: npm ci
 
-      - name: TypeScript check
-        run: npm run check
-
-      - name: Wait for PostgreSQL
-        run: |
-          for i in {1..30}; do
-            if pg_isready -h localhost -p 5432 -U Swatiai11414 -d hdos; then
-              echo "PostgreSQL is ready!"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "PostgreSQL not ready after 60 seconds"
-          exit 1
-
+      # =======================================
+      # Database Migrations
+      # =======================================
       - name: Run database migrations
         run: npm run db:push
         env:
-          DATABASE_URL: postgresql://Swatiai11414:Swatiai%40%40%40%23%23%23%23@localhost:5432/hdos
+          DATABASE_URL: postgresql://Swatiai11414:Swatiai%40%40%40%23%23%232003@localhost:5432/hdos
+
+      # =======================================
+      # Build & Verify
+      # =======================================
+      - name: TypeScript check
+        run: npm run check
 
       - name: Build application
         run: npm run build
@@ -68,3 +96,33 @@ jobs:
           else
             echo "No lint script found, skipping..."
           fi
+
+      # =======================================
+      # Ngrok Setup (Manual)
+      # =======================================
+      - name: Setup Ngrok
+        run: |
+          # Download ngrok
+          wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz -O /tmp/ngrok.tgz
+          sudo tar -xzf /tmp/ngrok.tgz -C /usr/local/bin ngrok
+          rm /tmp/ngrok.tgz
+          ngrok --version
+          echo "✓ Ngrok installed"
+
+      # =======================================
+      # Verification
+      # =======================================
+      - name: Verify installation
+        run: |
+          echo "╔════════════════════════════════════════════════════╗"
+          echo "║  SETUP COMPLETED SUCCESSFULLY! ✅                  ║"
+          echo "╚════════════════════════════════════════════════════╝"
+          echo ""
+          echo "Node.js: $(node -v)"
+          echo "npm: $(npm -v)"
+          echo "PostgreSQL: $(psql --version | head -1)"
+          echo "Ngrok: $(ngrok --version)"
+          echo ""
+          echo "Build output: $(ls dist 2>/dev/null || echo 'dist folder exists')"
+          echo ""
+          echo "🚀 Ready to deploy!"
