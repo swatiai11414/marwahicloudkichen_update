@@ -2,7 +2,7 @@
 
 # ===========================================
 # HDOS - Hotel Digital Operating System
-# Complete Setup Script with Progress Checks
+# Complete Setup Script (matches main.yml workflow)
 # ===========================================
 
 set -e
@@ -24,7 +24,7 @@ ERROR_COUNT=0
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║  $PROJECT_NAME                      ║${NC}"
-echo -e "${BLUE}║  Complete Setup Script with Progress Checks              ║${NC}"
+echo -e "${BLUE}║  Complete Setup Script (main.yml workflow)               ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -89,128 +89,86 @@ fi
 echo ""
 
 # ===========================================
-# Step 4: Start PostgreSQL Service
+# Step 4: Configure PostgreSQL (like main.yml)
 # ===========================================
 echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${YELLOW}║  Step 4: Starting PostgreSQL Service...                      ║${NC}"
+echo -e "${YELLOW}║  Step 4: Configuring PostgreSQL...                          ║${NC}"
 echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
-if sudo systemctl is-active --quiet postgresql 2>/dev/null; then
-    echo -e "${GREEN}✓ PostgreSQL service is running (systemctl)${NC}"
-elif sudo service postgresql status > /dev/null 2>&1; then
-    echo -e "${GREEN}✓ PostgreSQL service is running (service)${NC}"
-else
-    echo "Starting PostgreSQL service..."
-    sudo systemctl start postgresql 2>/dev/null || sudo service postgresql start 2>/dev/null || true
-    sleep 2
-    echo -e "${GREEN}✓ PostgreSQL service started${NC}"
-fi
+# Start PostgreSQL
+echo "Starting PostgreSQL service..."
+sudo service postgresql start
+sleep 3
+echo -e "${GREEN}✓ PostgreSQL service started${NC}"
 
-sudo systemctl enable postgresql 2>/dev/null || true
-echo -e "${GREEN}✓ PostgreSQL service is active${NC}"
-echo ""
+# Configure pg_hba.conf for md5 authentication
+echo "Configuring pg_hba.conf for md5 authentication..."
+sudo sed -i "s/scram-sha-256/md5/g" /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
+sudo sed -i "s/peer/trust/g" /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
+sudo sed -i 's/local   all             all             peer/local   all             all             md5/g' /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
 
-# ===========================================
-# Step 5: Configure PostgreSQL Authentication
-# ===========================================
-echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${YELLOW}║  Step 5: Configuring PostgreSQL Authentication...           ║${NC}"
-echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
-
-PG_HBA_CONF=""
-for ver in 16 15 14 13 12; do
-    if [ -f "/etc/postgresql/$ver/main/pg_hba.conf" ]; then
-        PG_HBA_CONF="/etc/postgresql/$ver/main/pg_hba.conf"
-        break
-    fi
-done
-
-if [ -z "$PG_HBA_CONF" ]; then
-    PG_HBA_CONF=$(sudo find /etc -name "pg_hba.conf" 2>/dev/null | head -1)
-fi
-
-if [ -z "$PG_HBA_CONF" ] || [ ! -f "$PG_HBA_CONF" ]; then
-    echo -e "${RED}✗ Could not find pg_hba.conf${NC}"
-    ERROR_COUNT=$((ERROR_COUNT + 1))
-else
-    echo -e "${CYAN}  Config file: $PG_HBA_CONF${NC}"
-    
-    if grep -q "^local.*all.*all.*md5" "$PG_HBA_CONF" 2>/dev/null && \
-       grep -q "^host.*all.*all.*127.0.0.1.*md5" "$PG_HBA_CONF" 2>/dev/null; then
-        echo -e "${GREEN}✓ md5 authentication is already configured${NC}"
-    else
-        echo "Configuring md5 authentication..."
-        sudo cp "$PG_HBA_CONF" "$PG_HBA_CONF.backup" 2>/dev/null || true
-        
-        sudo cat > "$PG_HBA_CONF" <<EOF
+cat > /tmp/pg_hba.conf <<'EOF'
 local   all             all                                     md5
 host    all             all             127.0.0.1/32            md5
 host    all             all             ::1/128                 md5
 EOF
-        echo -e "${GREEN}✓ pg_hba.conf updated with md5 authentication${NC}"
-    fi
-    
-    sudo systemctl restart postgresql 2>/dev/null || sudo service postgresql restart 2>/dev/null || true
-    sleep 2
-    echo -e "${GREEN}✓ PostgreSQL restarted${NC}"
-fi
-echo ""
 
-# ===========================================
-# Step 6: Create Database and User
-# ===========================================
-echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${YELLOW}║  Step 6: Creating Database and User...                      ║${NC}"
-echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
+sudo cp /tmp/pg_hba.conf /etc/postgresql/*/main/pg_hba.conf 2>/dev/null || true
+sudo service postgresql restart
+sleep 3
+echo -e "${GREEN}✓ pg_hba.conf configured${NC}"
 
+# Create user if not exists
 echo "Creating user '$DB_USER'..."
-USER_EXISTS=$(sudo -u postgres psql -t -c "SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = '$DB_USER';" 2>/dev/null | tr -d ' ')
-if [ -z "$USER_EXISTS" ]; then
-    sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';" 2>/dev/null
-    echo -e "${GREEN}✓ User '$DB_USER' created${NC}"
-else
-    echo -e "${GREEN}✓ User '$DB_USER' already exists${NC}"
-    sudo -u postgres psql -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASSWORD';" 2>/dev/null
-fi
+sudo -u postgres psql -c "DO \$\$
+BEGIN
+   IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$DB_USER') THEN
+      CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
+   ELSE
+      ALTER USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
+   END IF;
+END
+\$\$;"
+echo -e "${GREEN}✓ User '$DB_USER' created/updated${NC}"
 
+# Create database if not exists
 echo "Creating database '$DB_NAME'..."
-DB_EXISTS=$(sudo -u postgres psql -t -c "SELECT 1 FROM pg_database WHERE datname = '$DB_NAME';" 2>/dev/null | tr -d ' ')
-if [ -z "$DB_EXISTS" ]; then
-    sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null
-    echo -e "${GREEN}✓ Database '$DB_NAME' created${NC}"
-else
-    echo -e "${GREEN}✓ Database '$DB_NAME' already exists${NC}"
-fi
+sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null || true
+echo -e "${GREEN}✓ Database '$DB_NAME' created${NC}"
 
-sudo -u postgres psql -c "ALTER USER $DB_USER WITH SUPERUSER;" 2>/dev/null
+sudo -u postgres psql -c "ALTER USER $DB_USER WITH SUPERUSER;" 2>/dev/null || true
 echo -e "${GREEN}✓ User privileges configured${NC}"
 echo ""
 
 # ===========================================
-# Step 7: Test Database Connection
+# Step 5: Create .env file
 # ===========================================
 echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${YELLOW}║  Step 7: Testing Database Connection...                     ║${NC}"
+echo -e "${YELLOW}║  Step 5: Creating .env file...                              ║${NC}"
 echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
-export DATABASE_URL="postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME"
-
-if pg_isready -h localhost -p 5432 -U $DB_USER -d $DB_NAME 2>/dev/null; then
-    echo -e "${GREEN}✓ Database connection successful!${NC}"
-    echo -e "${CYAN}  Host: localhost:5432${NC}"
-    echo -e "${CYAN}  Database: $DB_NAME${NC}"
-    echo -e "${CYAN}  User: $DB_USER${NC}"
+if [ -f ".env" ]; then
+    echo -e "${YELLOW}.env file already exists, using existing configuration${NC}"
 else
-    echo -e "${RED}✗ Database connection failed!${NC}"
-    ERROR_COUNT=$((ERROR_COUNT + 1))
+    echo "Creating .env file..."
+    ENCODED_PASSWORD=$(echo -n "$DB_PASSWORD" | sed 's/@/%40/g' | sed 's/#/%23/g')
+
+    cat > .env <<EOF
+DATABASE_URL=postgresql://$DB_USER:$ENCODED_PASSWORD@localhost:5432/$DB_NAME
+SESSION_SECRET=0d30d9ade1002580c7b3d528963206b9f8292d4c3bc33a63083c738b4c2a54b0
+SUPER_ADMIN_PASSWORD=Codex@2003
+PORT=5000
+NODE_ENV=development
+EOF
+    echo -e "${GREEN}✓ .env file created successfully${NC}"
 fi
 echo ""
 
 # ===========================================
-# Step 8: Install Project Dependencies
+# Step 6: Install Dependencies
 # ===========================================
 echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${YELLOW}║  Step 8: Installing npm dependencies...                     ║${NC}"
+echo -e "${YELLOW}║  Step 6: Installing npm dependencies...                     ║${NC}"
 echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
 if [ -d "node_modules" ]; then
@@ -227,37 +185,29 @@ echo -e "${CYAN}  Dependencies count: $(ls node_modules 2>/dev/null | wc -l)${NC
 echo ""
 
 # ===========================================
-# Step 9: Configure Environment Variables
+# Step 7: Wait for PostgreSQL
 # ===========================================
 echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${YELLOW}║  Step 9: Configuring environment variables...                ║${NC}"
-echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
-
-if [ -f ".env" ]; then
-    echo -e "${YELLOW}.env file already exists, using existing configuration${NC}"
-else
-    echo "Creating .env file..."
-    ENCODED_PASSWORD=$(echo -n "$DB_PASSWORD" | sed 's/@/%40/g' | sed 's/#/%23/g')
-    
-    cat > .env <<EOF
-DATABASE_URL=postgresql://$DB_USER:$ENCODED_PASSWORD@localhost:5432/$DB_NAME
-SESSION_SECRET=0d30d9ade1002580c7b3d528963206b9f8292d4c3bc33a63083c738b4c2a54b0
-SUPER_ADMIN_PASSWORD=Codex@2003
-PORT=5000
-NODE_ENV=development
-EOF
-    echo -e "${GREEN}✓ .env file created successfully${NC}"
-fi
-echo ""
-
-# ===========================================
-# Step 10: Run Database Migrations
-# ===========================================
-echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${YELLOW}║  Step 10: Running database migrations...                    ║${NC}"
+echo -e "${YELLOW}║  Step 7: Waiting for PostgreSQL...                         ║${NC}"
 echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
 export DATABASE_URL="postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME"
+
+for i in {1..30}; do
+    if pg_isready -h localhost -p 5432 -U $DB_USER -d $DB_NAME 2>/dev/null; then
+        echo -e "${GREEN}✓ PostgreSQL is ready!${NC}"
+        break
+    fi
+    sleep 2
+done
+echo ""
+
+# ===========================================
+# Step 8: Run Database Migrations
+# ===========================================
+echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${YELLOW}║  Step 8: Running database migrations...                    ║${NC}"
+echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
 echo "Running database migrations..."
 npm run db:push > /tmp/db-migration.log 2>&1
@@ -273,10 +223,10 @@ fi
 echo ""
 
 # ===========================================
-# Step 11: TypeScript Check
+# Step 9: TypeScript Check
 # ===========================================
 echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${YELLOW}║  Step 11: TypeScript Check...                               ║${NC}"
+echo -e "${YELLOW}║  Step 9: TypeScript Check...                               ║${NC}"
 echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
 echo "Running TypeScript check..."
@@ -291,10 +241,10 @@ fi
 echo ""
 
 # ===========================================
-# Step 12: Build Application
+# Step 10: Build Application
 # ===========================================
 echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${YELLOW}║  Step 12: Building Application...                           ║${NC}"
+echo -e "${YELLOW}║  Step 10: Building Application...                           ║${NC}"
 echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
 echo "Building application..."
@@ -311,26 +261,39 @@ fi
 echo ""
 
 # ===========================================
-# Step 13: Port Configuration
+# Step 11: Setup Ngrok (Optional)
 # ===========================================
 echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${YELLOW}║  Step 13: Configure Server Port...                         ║${NC}"
+echo -e "${YELLOW}║  Step 11: Setup Ngrok (Optional)...                        ║${NC}"
 echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
-read -p "Enter port number to run the server (default: 5000): " -r
+read -p "Do you want to set up ngrok for public URL? (y/n): " -n 1 -r
 echo ""
 
-if [[ -z "$REPLY" ]]; then
-    PORT_NUMBER="5000"
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "Setting up ngrok..."
+
+    if command -v ngrok &> /dev/null; then
+        echo -e "${GREEN}✓ Ngrok is already installed${NC}"
+    else
+        wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz -O /tmp/ngrok.tgz 2>/dev/null || \
+        curl -sL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz -o /tmp/ngrok.tgz 2>/dev/null
+
+        if [ -f /tmp/ngrok.tgz ]; then
+            sudo tar -xzf /tmp/ngrok.tgz -C /usr/local/bin ngrok 2>/dev/null
+            rm /tmp/ngrok.tgz
+            if command -v ngrok &> /dev/null; then
+                echo -e "${GREEN}✓ Ngrok installed successfully${NC}"
+                echo -e "${CYAN}  Version: $(ngrok --version)${NC}"
+            else
+                echo -e "${RED}✗ Failed to install ngrok${NC}"
+            fi
+        else
+            echo -e "${RED}✗ Failed to download ngrok${NC}"
+        fi
+    fi
 else
-    PORT_NUMBER="$REPLY"
-fi
-
-echo -e "${GREEN}✓ Server will run on port: $PORT_NUMBER${NC}"
-
-if [ -f ".env" ]; then
-    sed -i "s/^PORT=.*/PORT=$PORT_NUMBER/" .env
-    echo -e "${GREEN}✓ Port updated in .env file${NC}"
+    echo -e "${YELLOW}Skipping ngrok setup${NC}"
 fi
 echo ""
 
@@ -338,7 +301,7 @@ echo ""
 # Final Summary
 # ===========================================
 echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║  SETUP COMPLETED SUCCESSFULLY!                              ║${NC}"
+echo -e "${GREEN}║  SETUP COMPLETED SUCCESSFULLY!                            ║${NC}"
 echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -354,7 +317,7 @@ echo "  - Database: $DB_NAME"
 echo "  - User: $DB_USER"
 echo "  - Node.js: $(node -v)"
 echo "  - npm: $(npm -v)"
-echo "  - Port: $PORT_NUMBER"
+echo "  - Port: 5000"
 echo ""
 
 echo -e "${CYAN}🚀 Available Commands:${NC}"
@@ -362,15 +325,19 @@ echo "  npm run dev    : Start development server"
 echo "  npm run build  : Build for production"
 echo "  npm start      : Start production server"
 
+if command -v ngrok &> /dev/null; then
+    echo "  ngrok http 5000 : Create public URL"
+fi
+
 echo ""
-echo -e "${CYAN}🌐 Server URL:${NC} http://localhost:$PORT_NUMBER"
+echo -e "${CYAN}🌐 Server URL:${NC} http://localhost:5000"
 echo ""
 
 read -p "Do you want to start the development server? (y/n): " -n 1 -r
 echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}Starting development server on port $PORT_NUMBER...${NC}"
-    export PORT=$PORT_NUMBER
+    echo -e "${YELLOW}Starting development server on port 5000...${NC}"
+    export PORT=5000
     npm run dev
 fi
