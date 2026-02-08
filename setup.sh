@@ -22,10 +22,38 @@ DB_PASSWORD="Swatiai@@@###2003"
 NODE_VERSION="24"
 ERROR_COUNT=0
 
+# Default port
+PORT=5000
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -p|--port)
+            PORT="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "Usage: ./setup.sh [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  -p, --port PORT    Set the port for the server (default: 5000)"
+            echo "  -h, --help         Show this help message"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use -h or --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║  $PROJECT_NAME                      ║${NC}"
 echo -e "${BLUE}║  Complete Setup Script (main.yml workflow)               ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${CYAN}📦 Server Port: $PORT${NC}"
 echo ""
 
 # ===========================================
@@ -158,7 +186,7 @@ else
 DATABASE_URL=postgresql://$DB_USER:$ENCODED_PASSWORD@localhost:5432/$DB_NAME
 SESSION_SECRET=0d30d9ade1002580c7b3d528963206b9f8292d4c3bc33a63083c738b4c2a54b0
 SUPER_ADMIN_PASSWORD=Codex@2003
-PORT=5000
+PORT=$PORT
 NODE_ENV=development
 EOF
     echo -e "${GREEN}✓ .env file created successfully${NC}"
@@ -262,43 +290,6 @@ fi
 echo ""
 
 # ===========================================
-# Step 11: Setup Ngrok (Optional)
-# ===========================================
-echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${YELLOW}║  Step 11: Setup Ngrok (Optional)...                        ║${NC}"
-echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
-
-read -p "Do you want to set up ngrok for public URL? (y/n): " -n 1 -r
-echo ""
-
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "Setting up ngrok..."
-
-    if command -v ngrok &> /dev/null; then
-        echo -e "${GREEN}✓ Ngrok is already installed${NC}"
-    else
-        wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz -O /tmp/ngrok.tgz 2>/dev/null || \
-        curl -sL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz -o /tmp/ngrok.tgz 2>/dev/null
-
-        if [ -f /tmp/ngrok.tgz ]; then
-            sudo tar -xzf /tmp/ngrok.tgz -C /usr/local/bin ngrok 2>/dev/null
-            rm /tmp/ngrok.tgz
-            if command -v ngrok &> /dev/null; then
-                echo -e "${GREEN}✓ Ngrok installed successfully${NC}"
-                echo -e "${CYAN}  Version: $(ngrok --version)${NC}"
-            else
-                echo -e "${RED}✗ Failed to install ngrok${NC}"
-            fi
-        else
-            echo -e "${RED}✗ Failed to download ngrok${NC}"
-        fi
-    fi
-else
-    echo -e "${YELLOW}Skipping ngrok setup${NC}"
-fi
-echo ""
-
-# ===========================================
 # Final Summary
 # ===========================================
 echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
@@ -318,17 +309,13 @@ echo "  - Database: $DB_NAME"
 echo "  - User: $DB_USER"
 echo "  - Node.js: $(node -v)"
 echo "  - npm: $(npm -v)"
-echo "  - Port: 5000"
+echo "  - Port: $PORT"
 echo ""
 
 echo -e "${CYAN}🚀 Available Commands:${NC}"
 echo "  npm run dev    : Start development server"
 echo "  npm run build  : Build for production"
 echo "  npm start      : Start production server"
-
-if command -v ngrok &> /dev/null; then
-    echo "  ngrok http 5000 : Create public URL"
-fi
 
 echo ""
 echo -e "${CYAN}🌐 Server URL:${NC} http://localhost:5000"
@@ -338,7 +325,7 @@ read -p "Do you want to start the development server? (y/n): " -n 1 -r
 echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}Starting development server on port 5000...${NC}"
-    export PORT=5000
+    echo -e "${YELLOW}Starting development server on port $PORT...${NC}"
+    export PORT=$PORT
     npm run dev
 fi
