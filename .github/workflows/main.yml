@@ -80,17 +80,8 @@ EOF
       # =======================================
       - name: Create .env file
         run: |
-          # URL encode the password (@ -> %40, # -> %23)
-          ENCODED_PASSWORD=$(echo -n "$DB_PASSWORD" | sed 's/@/%40/g' | sed 's/#/%23/g')
-
-          cat > .env <<EOF
-DATABASE_URL=postgresql://$DB_USER:$ENCODED_PASSWORD@localhost:5432/$DB_NAME
-SESSION_SECRET=0d30d9ade1002580c7b3d528963206b9f8292d4c3bc33a63083c738b4c2a54b0
-SUPER_ADMIN_PASSWORD=Codex@2003
-PORT=$PORT
-NODE_ENV=development
-EOF
-          echo "✓ .env created"
+          chmod +x create-env.sh
+          ./create-env.sh
 
       # =======================================
       # Install Dependencies
