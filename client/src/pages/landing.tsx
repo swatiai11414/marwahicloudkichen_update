@@ -73,9 +73,9 @@ export default function LandingPage() {
     setSelectedShopStatus(null);
   };
 
-  // Navigate to store
+  // Navigate to store - Always navigate, even if store is closed (to browse menu)
   const visitStore = () => {
-    if (selectedShop && canPlaceOrders(selectedShopStatus!)) {
+    if (selectedShop) {
       window.location.href = `/s/${selectedShop.slug}`;
     }
   };
@@ -378,7 +378,6 @@ export default function LandingPage() {
                 <Button
                   className="flex-1 h-12 text-base font-semibold"
                   onClick={visitStore}
-                  disabled={!!selectedShopStatus && !canPlaceOrders(selectedShopStatus)}
                 >
                   <Utensils className="mr-2 h-5 w-5" />
                   {selectedShopStatus && canPlaceOrders(selectedShopStatus) 
