@@ -36,7 +36,7 @@ show_help() {
     echo "  restart            Restart server"
     echo "  status             Check status"
     echo "  logs               View logs"
-    echo "  all                Full setup (install + migrate + start)"
+    echo "  all                Full setup"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -65,7 +65,7 @@ log_error() { echo -e "${RED}✗  $1${NC}"; ERROR_COUNT=$((ERROR_COUNT + 1)); }
 wait_postgres() {
     log_info "Waiting for PostgreSQL..."
     for i in {1..30}; do
-        if PGPASSWORD="$DB_PASSWORD" psql -h localhost -p 5432 -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" > /dev/null 2>&1; then
+        if sudo -u postgres psql -c "SELECT 1;" > /dev/null 2>&1; then
             log_success "PostgreSQL ready!"
             return 0
         fi
@@ -79,7 +79,7 @@ do_install() {
     echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${YELLOW}║  Step 1: Updating system...                              ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
-    sudo apt-get update -qq 2>&1 > /dev/null
+    sudo apt-get update -qq 2>&1 > /dev/null || true
     log_success "System updated"
 
     echo ""
@@ -89,8 +89,8 @@ do_install() {
     if command -v node &> /dev/null; then
         echo -e "${CYAN}Node.js $(node -v) installed${NC}"
     else
-        curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash - 2>&1 > /dev/null
-        sudo apt-get install -y nodejs 2>&1 > /dev/null
+        curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash - 2>&1 > /dev/null || true
+        sudo apt-get install -y nodejs 2>&1 > /dev/null || true
         log_success "Node.js $NODE_VERSION installed"
     fi
 
@@ -99,45 +99,80 @@ do_install() {
     echo -e "${YELLOW}║  Step 3: PostgreSQL...                                   ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
     if ! command -v psql &> /dev/null; then
-        sudo apt-get install -y postgresql postgresql-contrib 2>&1 > /dev/null
+        sudo apt-get install -y postgresql postgresql-contrib 2>&1 > /dev/null || true
     fi
-    log_success "PostgreSQL ready"
+    log_success "PostgreSQL installed"
 
     echo ""
     echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${YELLOW}║  Step 4: Configuring database...                          ║${NC}"
+    echo -e "${YELLOW}║  Step 4: Starting PostgreSQL...                          ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
-    
-    # Ensure PostgreSQL is running
     sudo service postgresql start 2>/dev/null || sudo pg_ctlcluster 16 main start 2>/dev/null || true
     sleep 2
-    
-    # Create user and database
-    sudo su - postgres -c "psql -c \\\"DROP DATABASE IF EXISTS $DB_NAME;\\\" 2>/dev/null" || true
-    sudo su - postgres -c "psql -c \\\"DROP USER IF EXISTS $DB_USER;\\\" 2>/dev/null" || true
-    sudo su - postgres -c "psql -c \\\"CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD' SUPERUSER;\\\""
-    sudo su - postgres -c "psql -c \\\"CREATE DATABASE $DB_NAME OWNER $DB_USER;\\\""
-    
-    # Restart PostgreSQL to apply changes
-    sudo service postgresql restart 2>/dev/null || sudo pg_ctlcluster 16 main restart 2>/dev/null || true
+    log_success "PostgreSQL started"
+
+    echo ""
+    echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${YELLOW}║  Step 5: Configuring database...                         ║${NC}"
+    echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
+
+    # Configure PostgreSQL for password authentication
+    log_info "Configuring PostgreSQL authentication..."
+
+    # Get PostgreSQL version
+    PG_VERSION=$(ls /etc/postgresql/ 2>/dev/null | grep -E '^[0-9]+$' | sort -n | tail -1)
+    [ -z "$PG_VERSION" ] && PG_VERSION=16
+
+    # Update pg_hba.conf to allow password authentication
+    sudo bash -c "cat > /etc/postgresql/$PG_VERSION/main/pg_hba.conf <<'HBA'
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+local   all             postgres                                peer
+local   all             all                                     md5
+host    all             all             127.0.0.1/32            md5
+host    all             all             ::1/128                 md5
+HBA"
+
+    # Restart PostgreSQL
+    sudo service postgresql restart 2>/dev/null || sudo pg_ctlcluster $PG_VERSION main restart 2>/dev/null || true
     sleep 2
-    
+
+    # Create user and database using postgres system user
+    log_info "Creating database user and schema..."
+
+    # Drop existing if exists
+    sudo -u postgres psql -c "DROP DATABASE IF EXISTS $DB_NAME;" 2>/dev/null || true
+    sudo -u postgres psql -c "DROP USER IF EXISTS $DB_USER;" 2>/dev/null || true
+
+    # Create user with password
+    sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD' SUPERUSER;"
+
+    # Create database
+    sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
+
+    # Grant all privileges
+    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
+
+    # Restart PostgreSQL again
+    sudo service postgresql restart 2>/dev/null || sudo pg_ctlcluster $PG_VERSION main restart 2>/dev/null || true
+    sleep 2
+
     # Test connection
     export PGPASSWORD="$DB_PASSWORD"
     if psql -h localhost -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" > /dev/null 2>&1; then
-        log_success "Database configured!"
+        log_success "Database configured successfully!"
     else
         log_error "Database connection failed!"
+        exit 1
     fi
 
     echo ""
     echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${YELLOW}║  Step 5: Creating .env file...                            ║${NC}"
+    echo -e "${YELLOW}║  Step 6: Creating .env file...                           ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
-    
+
     # URL encode the password
-    ENCODED_PASSWORD=$(echo -n "$DB_PASSWORD" | sed 's/@/%40/g' | sed 's/#/%23/g' | sed 's/@@@/%40%40%40/g')
-    
+    ENCODED_PASSWORD=$(echo -n "$DB_PASSWORD" | sed 's/@/%40/g' | sed 's/#/%23/g')
+
     cat > .env <<EOF
 DATABASE_URL=postgresql://$DB_USER:$ENCODED_PASSWORD@localhost:5432/$DB_NAME
 SESSION_SECRET=0d30d9ade1002580c7b3d528963206b9f8292d4c3bc33a63083c738b4c2a54b0
@@ -149,10 +184,9 @@ EOF
 
     echo ""
     echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${YELLOW}║  Step 6: Installing dependencies...                       ║${NC}"
+    echo -e "${YELLOW}║  Step 7: Installing dependencies...                      ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
-    
-    # Check if node_modules exists
+
     if [ -d "node_modules" ]; then
         log_info "node_modules exists, running npm ci..."
         npm ci 2>&1 | tail -5 || npm install 2>&1 | tail -5
@@ -160,7 +194,7 @@ EOF
         log_info "Installing dependencies..."
         npm install 2>&1 | tail -10
     fi
-    
+
     if [ -d "node_modules" ]; then
         log_success "Dependencies installed"
     else
@@ -172,15 +206,15 @@ EOF
 do_migrate() {
     echo ""
     echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${YELLOW}║  Running migrations...                                  ║${NC}"
+    echo -e "${YELLOW}║  Running migrations...                                   ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
-    
+
     wait_postgres || return 1
-    
+
     # Run drizzle push
     log_info "Running database migrations..."
     npm run db:push 2>&1 | tail -10
-    
+
     if [ $? -eq 0 ]; then
         log_success "Database migrations completed!"
     else
@@ -192,27 +226,27 @@ do_migrate() {
 do_start() {
     echo ""
     echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${YELLOW}║  Starting server on port $PORT...                         ║${NC}"
+    echo -e "${YELLOW}║  Starting server on port $PORT...                        ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
-    
+
     # Update PORT in .env
     sed -i "s/PORT=.*/PORT=$PORT/" .env 2>/dev/null || true
-    
+
     # Kill existing server
     sudo pkill -9 -f 'tsx server/index.ts' 2>/dev/null || true
     sudo pkill -9 -f 'node.*tsx' 2>/dev/null || true
     sleep 2
-    
+
     # Free port if occupied
     sudo fuser -k ${PORT}/tcp 2>/dev/null || true
     sleep 1
-    
+
     cd "$(dirname "$0")"
-    
+
     # Start server with sudo
     log_info "Starting server..."
     sudo PORT=$PORT NODE_ENV=development nohup npm run dev > /tmp/server.log 2>&1 &
-    
+
     # Wait for server to start
     log_info "Waiting for server to start..."
     for i in {1..15}; do
@@ -222,7 +256,7 @@ do_start() {
         fi
         sleep 2
     done
-    
+
     log_error "Server failed to start!"
     echo ""
     echo "Server log:"
@@ -249,18 +283,18 @@ do_restart() {
 do_status() {
     echo ""
     echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${YELLOW}║  Server Status                                           ║${NC}"
+    echo -e "${YELLOW}║  Server Status                                          ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
-    
+
     if sudo lsof -Pi :${PORT} -sTCP:LISTEN -t >/dev/null 2>&1; then
         log_success "Server RUNNING on port $PORT"
     else
         log_error "Server NOT RUNNING on port $PORT"
     fi
-    
+
     echo ""
     echo "Node: $(node -v 2>/dev/null || echo 'N/A')"
-    echo "PostgreSQL: $(PGPASSWORD="$DB_PASSWORD" psql -h localhost -p 5432 -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" > /dev/null 2>&1 && echo 'Connected' || echo 'Not Connected')"
+    echo "PostgreSQL: $(sudo service postgresql status 2>/dev/null | grep -q 'online\|active' && echo 'Connected' || echo 'Not Connected')"
     echo ""
     echo "Recent server logs:"
     tail -10 /tmp/server.log 2>/dev/null || echo "No logs found"
@@ -281,10 +315,10 @@ case $COMMAND in
     restart) do_restart ;;
     status) do_status ;;
     logs) do_logs ;;
-    all) 
+    all)
         do_install
         do_migrate
-        do_start 
+        do_start
         ;;
 esac
 
