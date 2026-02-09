@@ -365,9 +365,19 @@ export async function registerRoutes(
       }
 
       res.status(201).json(order);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating order:", error);
-      res.status(500).json({ message: "Internal server error" });
+
+      // Provide more detailed error message for debugging
+      const errorMessage = error?.message || error?.detail || "Unknown error";
+      const errorCode = error?.code || "UNKNOWN_ERROR";
+
+      // Return detailed error for debugging (without exposing sensitive info)
+      res.status(500).json({
+        message: "Failed to create order",
+        error: process.env.NODE_ENV === "development" ? errorMessage : undefined,
+        code: process.env.NODE_ENV === "development" ? errorCode : undefined
+      });
     }
   });
 
