@@ -31,12 +31,12 @@ show_help() {
     echo "Commands:"
     echo "  install            Install all dependencies"
     echo "  migrate            Run database migrations"
-    echo "  start              Start server"
+    echo "  start              Start server (background)"
     echo "  stop               Stop server"
     echo "  restart            Restart server"
     echo "  status             Check status"
     echo "  logs               View logs"
-    echo "  all                Full setup"
+    echo "  all                Full setup + start"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -116,47 +116,30 @@ do_install() {
     echo -e "${YELLOW}║  Step 5: Configuring database...                         ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
-    # Configure PostgreSQL for password authentication
     log_info "Configuring PostgreSQL authentication..."
 
-    # Get PostgreSQL version
     PG_VERSION=$(ls /etc/postgresql/ 2>/dev/null | grep -E '^[0-9]+$' | sort -n | tail -1)
     [ -z "$PG_VERSION" ] && PG_VERSION=16
 
-    # Update pg_hba.conf to allow password authentication
     sudo bash -c "cat > /etc/postgresql/$PG_VERSION/main/pg_hba.conf <<'HBA'
-# TYPE  DATABASE        USER            ADDRESS                 METHOD
 local   all             postgres                                peer
 local   all             all                                     md5
 host    all             all             127.0.0.1/32            md5
 host    all             all             ::1/128                 md5
 HBA"
 
-    # Restart PostgreSQL
     sudo service postgresql restart 2>/dev/null || sudo pg_ctlcluster $PG_VERSION main restart 2>/dev/null || true
     sleep 2
 
-    # Create user and database using postgres system user
-    log_info "Creating database user and schema..."
-
-    # Drop existing if exists
     sudo -u postgres psql -c "DROP DATABASE IF EXISTS $DB_NAME;" 2>/dev/null || true
     sudo -u postgres psql -c "DROP USER IF EXISTS $DB_USER;" 2>/dev/null || true
-
-    # Create user with password
     sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD' SUPERUSER;"
-
-    # Create database
     sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
-
-    # Grant all privileges
     sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
 
-    # Restart PostgreSQL again
     sudo service postgresql restart 2>/dev/null || sudo pg_ctlcluster $PG_VERSION main restart 2>/dev/null || true
     sleep 2
 
-    # Test connection
     export PGPASSWORD="$DB_PASSWORD"
     if psql -h localhost -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" > /dev/null 2>&1; then
         log_success "Database configured successfully!"
@@ -170,7 +153,6 @@ HBA"
     echo -e "${YELLOW}║  Step 6: Creating .env file...                           ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
-    # URL encode the password
     ENCODED_PASSWORD=$(echo -n "$DB_PASSWORD" | sed 's/@/%40/g' | sed 's/#/%23/g')
 
     cat > .env <<EOF
@@ -188,8 +170,8 @@ EOF
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
     if [ -d "node_modules" ]; then
-        log_info "node_modules exists, running npm ci..."
-        npm ci 2>&1 | tail -5 || npm install 2>&1 | tail -5
+        log_info "node_modules exists, running npm install..."
+        npm install 2>&1 | tail -5
     else
         log_info "Installing dependencies..."
         npm install 2>&1 | tail -10
@@ -211,7 +193,6 @@ do_migrate() {
 
     wait_postgres || return 1
 
-    # Run drizzle push
     log_info "Running database migrations..."
     npm run db:push 2>&1 | tail -10
 
@@ -229,29 +210,51 @@ do_start() {
     echo -e "${YELLOW}║  Starting server on port $PORT...                        ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
-    # Update PORT in .env
     sed -i "s/PORT=.*/PORT=$PORT/" .env 2>/dev/null || true
 
-    # Kill existing server
     sudo pkill -9 -f 'tsx server/index.ts' 2>/dev/null || true
     sudo pkill -9 -f 'node.*tsx' 2>/dev/null || true
     sleep 2
-
-    # Free port if occupied
     sudo fuser -k ${PORT}/tcp 2>/dev/null || true
     sleep 1
 
     cd "$(dirname "$0")"
 
-    # Start server with sudo
-    log_info "Starting server..."
-    sudo PORT=$PORT NODE_ENV=development nohup npm run dev > /tmp/server.log 2>&1 &
+    log_info "Starting server with systemd service..."
 
-    # Wait for server to start
+    # Create systemd service
+    cat > /tmp/hdos.service <<EOF
+[Unit]
+Description=HDOS - Hotel Digital Operating System
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=$(pwd)
+ExecStart=/usr/bin/npx tsx server/index.ts
+Environment=PORT=$PORT
+Environment=NODE_ENV=development
+Restart=always
+RestartSec=10
+StandardOutput=append:/tmp/server.log
+StandardError=append:/tmp/server.log
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    sudo cp /tmp/hdos.service /etc/systemd/system/hdos.service
+    sudo systemctl daemon-reload
+    sudo systemctl enable hdos
+    sudo systemctl start hdos
+
     log_info "Waiting for server to start..."
-    for i in {1..15}; do
+    for i in {1..20}; do
         if sudo lsof -Pi :${PORT} -sTCP:LISTEN -t >/dev/null 2>&1; then
             log_success "Server started successfully on port $PORT!"
+            echo ""
+            echo "Server is running in BACKGROUND and will AUTO-START on reboot!"
             return 0
         fi
         sleep 2
@@ -259,7 +262,8 @@ do_start() {
 
     log_error "Server failed to start!"
     echo ""
-    echo "Server log:"
+    echo "Server logs:"
+    sudo systemctl status hdos
     tail -20 /tmp/server.log 2>/dev/null
     exit 1
 }
@@ -267,6 +271,7 @@ do_start() {
 do_stop() {
     echo ""
     echo -e "${YELLOW}Stopping server...${NC}"
+    sudo systemctl stop hdos 2>/dev/null || true
     sudo pkill -9 -f 'tsx server/index.ts' 2>/dev/null || true
     sudo pkill -9 -f 'node.*tsx' 2>/dev/null || true
     sudo fuser -k ${PORT}/tcp 2>/dev/null || true
@@ -286,27 +291,29 @@ do_status() {
     echo -e "${YELLOW}║  Server Status                                          ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
 
-    if sudo lsof -Pi :${PORT} -sTCP:LISTEN -t >/dev/null 2>&1; then
-        log_success "Server RUNNING on port $PORT"
+    if sudo systemctl is-active --quiet hdos 2>/dev/null; then
+        log_success "Server RUNNING (systemd service: hdos)"
+        echo ""
+        echo "Service Status:"
+        sudo systemctl status hdos --no-pager | head -10
     else
-        log_error "Server NOT RUNNING on port $PORT"
+        log_error "Server NOT RUNNING"
     fi
 
     echo ""
-    echo "Node: $(node -v 2>/dev/null || echo 'N/A')"
-    echo "PostgreSQL: $(sudo service postgresql status 2>/dev/null | grep -q 'online\|active' && echo 'Connected' || echo 'Not Connected')"
+    echo "PostgreSQL: $(sudo service postgresql status 2>/dev/null | grep -q 'online\|active' && echo 'Running' || echo 'Not Running')"
     echo ""
     echo "Recent server logs:"
-    tail -10 /tmp/server.log 2>/dev/null || echo "No logs found"
+    tail -20 /tmp/server.log 2>/dev/null || echo "No logs found"
 }
 
 do_logs() {
     echo ""
     echo -e "${YELLOW}Server Logs${NC}"
-    tail -50 /tmp/server.log 2>/dev/null || echo "No logs found"
+    echo ""
+    sudo journalctl -u hdos -n 50 --no-pager 2>/dev/null || tail -50 /tmp/server.log
 }
 
-# Main execution
 case $COMMAND in
     install) do_install ;;
     migrate) do_migrate ;;
@@ -330,4 +337,10 @@ echo ""
 IP=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
 echo -e "${CYAN}🌐 http://$IP:$PORT${NC}"
 echo -e "${CYAN}🔐 Super Admin: http://$IP:$PORT/login/super-admin${NC}"
+echo ""
+echo "Commands:"
+echo "  ./setup.sh status    - Check server status"
+echo "  ./setup.sh logs      - View server logs"
+echo "  ./setup.sh restart   - Restart server"
+echo "  ./setup.sh stop      - Stop server"
 echo ""
