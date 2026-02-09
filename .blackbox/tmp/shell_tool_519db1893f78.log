@@ -1,0 +1,10 @@
+[dotenv@17.2.4] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+✓ Database connection successful
+✓ Database tables already exist (18 tables)
+✓ Database schema updated with new columns
+12:07:51 PM [express] serving on port 80
+12:07:59 PM [express] GET /api/shops/list 200 in 6ms :: []
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+12:08:59 PM [express] GET /api/shops/list 200 in 18ms :: []
+12:08:59 PM [express] POST /api/track-visit 200 in 9ms :: {"success":true}

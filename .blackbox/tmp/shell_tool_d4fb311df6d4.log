@@ -1,0 +1,465 @@
+sending incremental file list
+./
+.env
+            833 100%    0.00kB/s    0:00:00              833 100%    0.00kB/s    0:00:00 (xfr#1, to-chk=245/247)
+.env.example
+          1,085 100%    1.03MB/s    0:00:00            1,085 100%    1.03MB/s    0:00:00 (xfr#2, to-chk=244/247)
+.gitignore
+            205 100%  200.20kB/s    0:00:00              205 100%  200.20kB/s    0:00:00 (xfr#3, to-chk=243/247)
+DEPLOY.md
+         15,390 100%   14.68MB/s    0:00:00           15,390 100%   14.68MB/s    0:00:00 (xfr#4, to-chk=242/247)
+LOCAL_SETUP.md
+          3,877 100%    3.70MB/s    0:00:00            3,877 100%    3.70MB/s    0:00:00 (xfr#5, to-chk=241/247)
+LOCAL_TESTING_GUIDE.md
+          2,422 100%    2.31MB/s    0:00:00            2,422 100%    2.31MB/s    0:00:00 (xfr#6, to-chk=240/247)
+README.md
+         18,478 100%   17.62MB/s    0:00:00           18,478 100%   17.62MB/s    0:00:00 (xfr#7, to-chk=239/247)
+backup.sh
+         11,525 100%   10.99MB/s    0:00:00           11,525 100%   10.99MB/s    0:00:00 (xfr#8, to-chk=238/247)
+components.json
+            459 100%  448.24kB/s    0:00:00              459 100%  448.24kB/s    0:00:00 (xfr#9, to-chk=237/247)
+create-env.sh
+          1,239 100%    1.18MB/s    0:00:00            1,239 100%    1.18MB/s    0:00:00 (xfr#10, to-chk=236/247)
+design_guidelines.md
+          6,718 100%    6.41MB/s    0:00:00            6,718 100%    3.20MB/s    0:00:00 (xfr#11, to-chk=235/247)
+dev.sh
+            145 100%   70.80kB/s    0:00:00              145 100%   70.80kB/s    0:00:00 (xfr#12, to-chk=234/247)
+drizzle.config.ts
+            325 100%  158.69kB/s    0:00:00              325 100%  158.69kB/s    0:00:00 (xfr#13, to-chk=233/247)
+fix-db.sh
+          9,080 100%    4.33MB/s    0:00:00            9,080 100%    4.33MB/s    0:00:00 (xfr#14, to-chk=232/247)
+hdos.service
+            609 100%  297.36kB/s    0:00:00              609 100%  297.36kB/s    0:00:00 (xfr#15, to-chk=231/247)
+miss.pem
+          1,678 100%  819.34kB/s    0:00:00            1,678 100%  819.34kB/s    0:00:00 (xfr#16, to-chk=230/247)
+monitor.sh
+          1,415 100%  690.92kB/s    0:00:00            1,415 100%  690.92kB/s    0:00:00 (xfr#17, to-chk=229/247)
+package-lock.json
+         32,768   8%   15.62MB/s    0:00:00          376,545 100%   89.78MB/s    0:00:00 (xfr#18, to-chk=228/247)
+package.json
+          3,789 100%  925.05kB/s    0:00:00            3,789 100%  925.05kB/s    0:00:00 (xfr#19, to-chk=227/247)
+postcss.config.js
+             80 100%   19.53kB/s    0:00:00               80 100%   19.53kB/s    0:00:00 (xfr#20, to-chk=226/247)
+render.yaml
+            769 100%  187.74kB/s    0:00:00              769 100%  187.74kB/s    0:00:00 (xfr#21, to-chk=225/247)
+restart-server.sh
+            280 100%   68.36kB/s    0:00:00              280 100%   68.36kB/s    0:00:00 (xfr#22, to-chk=224/247)
+restore.sh
+         10,345 100%    2.47MB/s    0:00:00           10,345 100%    2.47MB/s    0:00:00 (xfr#23, to-chk=223/247)
+run-port-80.sh
+            547 100%  133.54kB/s    0:00:00              547 100%  133.54kB/s    0:00:00 (xfr#24, to-chk=222/247)
+run_dev.sh
+            493 100%  120.36kB/s    0:00:00              493 100%  120.36kB/s    0:00:00 (xfr#25, to-chk=221/247)
+setup.sh
+         15,734 100%    3.75MB/s    0:00:00           15,734 100%    3.75MB/s    0:00:00 (xfr#26, to-chk=220/247)
+start-db.sh
+              0 100%    0.00kB/s    0:00:00 (xfr#27, to-chk=219/247)
+tailwind.config.ts
+          4,092 100%  999.02kB/s    0:00:00            4,092 100%  999.02kB/s    0:00:00 (xfr#28, to-chk=218/247)
+tsconfig.json
+            857 100%  167.38kB/s    0:00:00              857 100%  167.38kB/s    0:00:00 (xfr#29, to-chk=217/247)
+update.sh
+          1,577 100%  308.01kB/s    0:00:00            1,577 100%  308.01kB/s    0:00:00 (xfr#30, to-chk=216/247)
+vercel.json
+            438 100%   85.55kB/s    0:00:00              438 100%   85.55kB/s    0:00:00 (xfr#31, to-chk=215/247)
+vite.config.ts
+            635 100%  124.02kB/s    0:00:00              635 100%  124.02kB/s    0:00:00 (xfr#32, to-chk=214/247)
+vps.zip
+         32,768   0%    6.25MB/s    0:00:03        2,490,368  10%    2.34MB/s    0:00:09       13,369,344  55%    6.30MB/s    0:00:01       24,115,366 100%    8.35MB/s    0:00:02 (xfr#33, to-chk=213/247)
+.github/
+.github/workflows/
+.github/workflows/mai.yml
+          5,171 100%    6.92kB/s    0:00:00            5,171 100%    6.92kB/s    0:00:00 (xfr#34, to-chk=200/247)
+.github/workflows/main.yml
+          3,625 100%    4.85kB/s    0:00:00            3,625 100%    4.85kB/s    0:00:00 (xfr#35, to-chk=199/247)
+.local/
+.local/state/
+.local/state/replit/
+.local/state/replit/agent/
+.local/state/replit/agent/.agent_state_02562a2f8bb57a808f63c2bf3a7a0b67387004f8.bin
+         32,768  21%   43.84kB/s    0:00:02          151,252 100%  202.06kB/s    0:00:00 (xfr#36, to-chk=195/247)
+.local/state/replit/agent/.agent_state_0aeb00933aa6834facb709b4ca0cc3616a6f989c.bin
+         32,768  30%   43.78kB/s    0:00:01          108,560 100%  143.46kB/s    0:00:00 (xfr#37, to-chk=194/247)
+.local/state/replit/agent/.agent_state_1379ecaae2ae289441434423b73d195a66946aea.bin
+         32,768  19%   43.30kB/s    0:00:03          171,169 100%  226.19kB/s    0:00:00 (xfr#38, to-chk=193/247)
+.local/state/replit/agent/.agent_state_1a741f87d02b3a2eb942eadd69479a529965e77b.bin
+         32,768  30%   43.30kB/s    0:00:01          105,851 100%  139.50kB/s    0:00:00 (xfr#39, to-chk=192/247)
+.local/state/replit/agent/.agent_state_1bf7d2468aebd10339ef85555e3e1c62c158539e.bin
+         32,768  24%   43.18kB/s    0:00:02          134,247 100%  174.80kB/s    0:00:00 (xfr#40, to-chk=191/247)
+.local/state/replit/agent/.agent_state_2177a9c900f50c9638e6addc63a4c6b534498ccf.bin
+         32,768  36%   42.61kB/s    0:00:01           90,981 100%  118.31kB/s    0:00:00 (xfr#41, to-chk=190/247)
+.local/state/replit/agent/.agent_state_238d19f03a7a66e99ae82751c7ec167de0d413ed.bin
+         32,768  40%   42.61kB/s    0:00:01           80,619 100%  104.83kB/s    0:00:00 (xfr#42, to-chk=189/247)
+.local/state/replit/agent/.agent_state_2516e0cd9ba8f3266a11b72f4771825fed1bcf7d.bin
+         32,768  21%   42.61kB/s    0:00:02          153,561 100%  199.42kB/s    0:00:00 (xfr#43, to-chk=188/247)
+.local/state/replit/agent/.agent_state_29bff72081bb20da9af04fb8fffa03fa53598810.bin
+         32,768  20%   42.55kB/s    0:00:03          161,096 100%  208.92kB/s    0:00:00 (xfr#44, to-chk=187/247)
+.local/state/replit/agent/.agent_state_353d6afa4e9a4527b1981a103b2cd7d59a1b1ad3.bin
+         32,768  38%   42.50kB/s    0:00:01           85,128 100%  110.40kB/s    0:00:00 (xfr#45, to-chk=186/247)
+.local/state/replit/agent/.agent_state_3616bb2b73e4e336be3b891d10316c01eb766143.bin
+         32,768  24%   42.50kB/s    0:00:02          134,401 100%  172.70kB/s    0:00:00 (xfr#46, to-chk=185/247)
+.local/state/replit/agent/.agent_state_367ef2775ffc8f6a9e5f817f95f3a18a8eb16105.bin
+         32,768  30%   42.11kB/s    0:00:01          105,874 100%  135.86kB/s    0:00:00 (xfr#47, to-chk=184/247)
+.local/state/replit/agent/.agent_state_3d7d0faf860e83025ebb166d2f7c702aba748618.bin
+         32,768  34%   42.05kB/s    0:00:01           95,235 100%  121.57kB/s    0:00:00 (xfr#48, to-chk=183/247)
+.local/state/replit/agent/.agent_state_3dc94dc1b5e8f798cf24e9a08cdefac470c912c9.bin
+         32,768  24%   41.78kB/s    0:00:02          134,183 100%  150.97kB/s    0:00:00 (xfr#49, to-chk=182/247)
+.local/state/replit/agent/.agent_state_4ba986b818f643e33729d1fa28b9d85b0e23316b.bin
+         32,768  28%   36.87kB/s    0:00:02          116,810 100%  131.12kB/s    0:00:00 (xfr#50, to-chk=181/247)
+.local/state/replit/agent/.agent_state_53b6f8d80ac62830d0e7ff7d55bfbdd4e4d1c99f.bin
+         32,768  19%   36.78kB/s    0:00:03          164,022 100%  183.48kB/s    0:00:00 (xfr#51, to-chk=180/247)
+.local/state/replit/agent/.agent_state_58182560981d2ba46691b168c3020b44de7a9b98.bin
+         32,768  31%   36.66kB/s    0:00:01          102,748 100%  114.81kB/s    0:00:00 (xfr#52, to-chk=179/247)
+.local/state/replit/agent/.agent_state_63aa0867a37e848f2200a500cdf71a4d08ce058b.bin
+         32,768  19%   36.61kB/s    0:00:03          166,733 100%  185.87kB/s    0:00:00 (xfr#53, to-chk=178/247)
+.local/state/replit/agent/.agent_state_646d776e0e5e7a6f510961549a8524c98b2f7e4a.bin
+         32,768  26%   36.53kB/s    0:00:02          123,456 100%  136.54kB/s    0:00:00 (xfr#54, to-chk=177/247)
+.local/state/replit/agent/.agent_state_701f0cca3aa1e8243dc7f8e5176cdde8c80ab02c.bin
+         32,768  25%   36.24kB/s    0:00:02          130,267 100%  143.91kB/s    0:00:00 (xfr#55, to-chk=176/247)
+.local/state/replit/agent/.agent_state_766921252ef0a93c46047be8c6ee5fca1d724f5f.bin
+         32,768  34%   36.16kB/s    0:00:01           95,018 100%  104.85kB/s    0:00:00 (xfr#56, to-chk=175/247)
+.local/state/replit/agent/.agent_state_7e0e355e0e4421a3d48c0e013e0af5452a16fede.bin
+         32,768  35%   36.16kB/s    0:00:01           91,042 100%  100.46kB/s    0:00:00 (xfr#57, to-chk=174/247)
+.local/state/replit/agent/.agent_state_87a6fa6aaeeecf41a321567d320370836ce774d1.bin
+         32,768  21%   36.16kB/s    0:00:03          153,620 100%  167.62kB/s    0:00:00 (xfr#58, to-chk=173/247)
+.local/state/replit/agent/.agent_state_89a4de1cb4f40748f06385432e9f1b0d01c5f1bf.bin
+         32,768  19%   35.75kB/s    0:00:03          168,950 100%  183.94kB/s    0:00:00 (xfr#59, to-chk=172/247)
+.local/state/replit/agent/.agent_state_95eacdf62fabab11d715da6dbb0441d2149788f1.bin
+         32,768  34%   35.67kB/s    0:00:01           95,998 100%  104.51kB/s    0:00:00 (xfr#60, to-chk=171/247)
+.local/state/replit/agent/.agent_state_972077f1139310fd1f5bde8c6744a790d0646da5.bin
+         32,768  30%   35.67kB/s    0:00:02          105,810 100%  115.20kB/s    0:00:00 (xfr#61, to-chk=170/247)
+.local/state/replit/agent/.agent_state_986efd014c25f41290631573813521a8b515d3ba.bin
+         32,768  30%   35.67kB/s    0:00:02          108,518 100%  117.75kB/s    0:00:00 (xfr#62, to-chk=169/247)
+.local/state/replit/agent/.agent_state_99556f44f5129dd9ab3b22246025f40ba781cc5f.bin
+         32,768  18%   35.56kB/s    0:00:04          177,532 100%  191.57kB/s    0:00:00 (xfr#63, to-chk=168/247)
+.local/state/replit/agent/.agent_state_a49dbac501b280301530fa088ccae3afec66765f.bin
+         32,768  20%   35.36kB/s    0:00:03          159,415 100%  153.98kB/s    0:00:00          159,415 100%  153.98kB/s    0:00:01 (xfr#64, to-chk=167/247)
+.local/state/replit/agent/.agent_state_a60fade961a40119f366948d8ab9c1d95b42f2c5.bin
+         32,768  27%   31.25MB/s    0:00:00          118,903 100%  113.39MB/s    0:00:00 (xfr#65, to-chk=166/247)
+.local/state/replit/agent/.agent_state_a83dce012537658f53bf48dde33042b589ef41df.bin
+         32,768  24%   31.25MB/s    0:00:00          136,064 100%   64.88MB/s    0:00:00 (xfr#66, to-chk=165/247)
+.local/state/replit/agent/.agent_state_a855f8c30b26913986c2ea580f5ebc09478324be.bin
+         32,768  28%   15.62MB/s    0:00:00          116,491 100%   18.52MB/s    0:00:00 (xfr#67, to-chk=164/247)
+.local/state/replit/agent/.agent_state_a89e13493b280691d35201427065f6381b3d26fe.bin
+         32,768  35%    5.21MB/s    0:00:00           93,276 100%   14.83MB/s    0:00:00 (xfr#68, to-chk=163/247)
+.local/state/replit/agent/.agent_state_ae66727642c957d8d9a4a3ae8ddf6cb12b37a670.bin
+         32,768  26%    5.21MB/s    0:00:00          123,617 100%   16.84MB/s    0:00:00 (xfr#69, to-chk=162/247)
+.local/state/replit/agent/.agent_state_b09d8d34dc10b3b181f04fe11f563efdaf20a3e6.bin
+         32,768  18%    4.46MB/s    0:00:00          177,572 100%   21.17MB/s    0:00:00 (xfr#70, to-chk=161/247)
+.local/state/replit/agent/.agent_state_b33ee634a90e5807f122b6ab89a6790f48efbdd6.bin
+         32,768  22%    3.91MB/s    0:00:00          147,610 100%    8.80MB/s    0:00:00 (xfr#71, to-chk=160/247)
+.local/state/replit/agent/.agent_state_b4d44f9a25e676e83d21decdbba782d7978d5c1b.bin
+         32,768  35%    1.95MB/s    0:00:00           93,345 100%    5.24MB/s    0:00:00 (xfr#72, to-chk=159/247)
+.local/state/replit/agent/.agent_state_b86220ef576e7c810b2e6cac0e46497d7e6e5919.bin
+         32,768  27%    1.84MB/s    0:00:00          118,879 100%    4.20MB/s    0:00:00 (xfr#73, to-chk=158/247)
+.local/state/replit/agent/.agent_state_c22c2cd0465b2aeb9f69cceaa3d5ee1161b2c55c.bin
+         32,768  34%    1.16MB/s    0:00:00           95,954 100%    3.27MB/s    0:00:00 (xfr#74, to-chk=157/247)
+.local/state/replit/agent/.agent_state_c39a84e8efd878c29082f98df6eb204cee9fd1fc.bin
+         32,768  25%    1.12MB/s    0:00:00          128,436 100%    4.37MB/s    0:00:00 (xfr#75, to-chk=156/247)
+.local/state/replit/agent/.agent_state_cd4b2178cf03d1d53cbd5954a392030bcf7a0257.bin
+         32,768  31%    1.12MB/s    0:00:00          102,720 100%    3.38MB/s    0:00:00 (xfr#76, to-chk=155/247)
+.local/state/replit/agent/.agent_state_d845776d6934ce90f9f7acab3892d893fffd1f5a.bin
+         32,768  28%    1.08MB/s    0:00:00          116,752 100%    3.84MB/s    0:00:00 (xfr#77, to-chk=154/247)
+.local/state/replit/agent/.agent_state_ee06e17979ef1575c86b5dcbb663e04176312010.bin
+         32,768  25%    1.08MB/s    0:00:00          130,407 100%    3.89MB/s    0:00:00 (xfr#78, to-chk=153/247)
+.local/state/replit/agent/.agent_state_ee5fdf985b005a1bc70070d491440896ed736f40.bin
+         32,768  21% 1000.00kB/s    0:00:00          155,140 100%    4.11MB/s    0:00:00 (xfr#79, to-chk=152/247)
+.local/state/replit/agent/.agent_state_f0cc8506cf0c2f1409268b13acde20d2526e0664.bin
+         32,768  20%  888.89kB/s    0:00:00          161,152 100%    3.66MB/s    0:00:00 (xfr#80, to-chk=151/247)
+.local/state/replit/agent/.agent_state_main.bin
+         32,768  40%  761.90kB/s    0:00:00           80,685 100%    1.83MB/s    0:00:00 (xfr#81, to-chk=150/247)
+.local/state/replit/agent/.latest.json
+             18 100%    0.42kB/s    0:00:00               18 100%    0.42kB/s    0:00:00 (xfr#82, to-chk=149/247)
+.local/state/replit/agent/repl_state.bin
+         15,463 100%  104.87kB/s    0:00:00           15,463 100%  104.87kB/s    0:00:00 (xfr#83, to-chk=148/247)
+api/
+api/index.ts
+            605 100%    4.07kB/s    0:00:00              605 100%    4.07kB/s    0:00:00 (xfr#84, to-chk=147/247)
+attached_assets/
+attached_assets/Pasted-You-are-a-senior-full-stack-SaaS-architect-and-security_1768522559602.txt
+          4,709 100%   31.71kB/s    0:00:00            4,709 100%   31.71kB/s    0:00:00 (xfr#85, to-chk=146/247)
+attached_assets/Pasted-You-are-a-senior-full-stack-SaaS-architect-startup-prod_1768529963744.txt
+          5,450 100%   36.71kB/s    0:00:00            5,450 100%   36.71kB/s    0:00:00 (xfr#86, to-chk=145/247)
+attached_assets/Pasted-You-are-a-senior-product-designer-and-full-stack-engine_1768531821634.txt
+          3,445 100%   23.20kB/s    0:00:00            3,445 100%   23.20kB/s    0:00:00 (xfr#87, to-chk=144/247)
+attached_assets/SaaS-Architect_1768661536515.zip
+         32,768   0%  220.69kB/s    0:00:22        5,010,276 100%   10.64MB/s    0:00:00 (xfr#88, to-chk=143/247)
+backups/
+backups/db_hdos_20260207_080526.sql.gz
+         14,322 100%   31.08kB/s    0:00:00           14,322 100%   31.08kB/s    0:00:00 (xfr#89, to-chk=142/247)
+backups/db_hdos_20260207_080728.sql.gz
+         14,324 100%   31.09kB/s    0:00:00           14,324 100%   31.09kB/s    0:00:00 (xfr#90, to-chk=141/247)
+backups/full_backup_20260207_080526/
+backups/full_backup_20260207_080526/manifest.json
+            115 100%    0.25kB/s    0:00:00              115 100%    0.25kB/s    0:00:00 (xfr#91, to-chk=138/247)
+backups/full_backup_20260207_080728/
+backups/full_backup_20260207_080728/manifest.json
+            115 100%    0.25kB/s    0:00:00              115 100%    0.25kB/s    0:00:00 (xfr#92, to-chk=137/247)
+client/
+client/index.html
+          2,452 100%    5.32kB/s    0:00:00            2,452 100%    5.32kB/s    0:00:00 (xfr#93, to-chk=136/247)
+client/public/
+client/public/favicon
+          1,145 100%    2.48kB/s    0:00:00            1,145 100%    2.48kB/s    0:00:00 (xfr#94, to-chk=133/247)
+client/public/favicon.png
+         32,768  33%   71.11kB/s    0:00:00           97,846 100%  211.87kB/s    0:00:00 (xfr#95, to-chk=132/247)
+client/src/
+client/src/App.tsx
+          5,628 100%   12.19kB/s    0:00:00            5,628 100%   12.19kB/s    0:00:00 (xfr#96, to-chk=131/247)
+client/src/index.css
+         10,615 100%   22.98kB/s    0:00:00           10,615 100%   22.98kB/s    0:00:00 (xfr#97, to-chk=130/247)
+client/src/main.tsx
+            157 100%    0.34kB/s    0:00:00              157 100%    0.34kB/s    0:00:00 (xfr#98, to-chk=129/247)
+client/src/components/
+client/src/components/BulkAvailabilityManager.tsx
+         21,516 100%   46.49kB/s    0:00:00           21,516 100%   46.49kB/s    0:00:00 (xfr#99, to-chk=124/247)
+client/src/components/DeliveryChargeSettings.tsx
+         14,977 100%   32.36kB/s    0:00:00           14,977 100%   32.36kB/s    0:00:00 (xfr#100, to-chk=123/247)
+client/src/components/HolidayManager.tsx
+         13,650 100%   29.49kB/s    0:00:00           13,650 100%   29.49kB/s    0:00:00 (xfr#101, to-chk=122/247)
+client/src/components/StoreAvailabilitySettings.tsx
+         11,153 100%   24.10kB/s    0:00:00           11,153 100%   24.10kB/s    0:00:00 (xfr#102, to-chk=121/247)
+client/src/components/StoreStatusBadge.tsx
+          4,870 100%   10.52kB/s    0:00:00            4,870 100%   10.52kB/s    0:00:00 (xfr#103, to-chk=120/247)
+client/src/components/StoreStatusToggle.tsx
+          7,449 100%   16.09kB/s    0:00:00            7,449 100%   16.09kB/s    0:00:00 (xfr#104, to-chk=119/247)
+client/src/components/admin-layout.tsx
+          6,864 100%   14.83kB/s    0:00:00            6,864 100%   14.83kB/s    0:00:00 (xfr#105, to-chk=118/247)
+client/src/components/error-boundary.tsx
+          1,371 100%    2.96kB/s    0:00:00            1,371 100%    2.96kB/s    0:00:00 (xfr#106, to-chk=117/247)
+client/src/components/feedback-form.tsx
+          4,717 100%   10.17kB/s    0:00:00            4,717 100%   10.17kB/s    0:00:00 (xfr#107, to-chk=116/247)
+client/src/components/image-cropper.tsx
+         10,108 100%   21.79kB/s    0:00:00           10,108 100%   21.79kB/s    0:00:00 (xfr#108, to-chk=115/247)
+client/src/components/loading-spinner.tsx
+            925 100%    1.99kB/s    0:00:00              925 100%    1.99kB/s    0:00:00 (xfr#109, to-chk=114/247)
+client/src/components/theme-provider.tsx
+          1,605 100%    3.46kB/s    0:00:00            1,605 100%    3.46kB/s    0:00:00 (xfr#110, to-chk=113/247)
+client/src/components/theme-toggle.tsx
+            677 100%    1.46kB/s    0:00:00              677 100%    1.46kB/s    0:00:00 (xfr#111, to-chk=112/247)
+client/src/components/ui/
+client/src/components/ui/accordion.tsx
+          1,977 100%    4.26kB/s    0:00:00            1,977 100%    4.26kB/s    0:00:00 (xfr#112, to-chk=110/247)
+client/src/components/ui/alert-dialog.tsx
+          4,420 100%    9.53kB/s    0:00:00            4,420 100%    9.53kB/s    0:00:00 (xfr#113, to-chk=109/247)
+client/src/components/ui/alert.tsx
+          1,584 100%    3.41kB/s    0:00:00            1,584 100%    3.41kB/s    0:00:00 (xfr#114, to-chk=108/247)
+client/src/components/ui/aspect-ratio.tsx
+            140 100%    0.30kB/s    0:00:00              140 100%    0.30kB/s    0:00:00 (xfr#115, to-chk=107/247)
+client/src/components/ui/avatar.tsx
+          1,592 100%    3.43kB/s    0:00:00            1,592 100%    3.43kB/s    0:00:00 (xfr#116, to-chk=106/247)
+client/src/components/ui/badge.tsx
+          1,202 100%    2.59kB/s    0:00:00            1,202 100%    2.59kB/s    0:00:00 (xfr#117, to-chk=105/247)
+client/src/components/ui/breadcrumb.tsx
+          2,712 100%    5.85kB/s    0:00:00            2,712 100%    5.85kB/s    0:00:00 (xfr#118, to-chk=104/247)
+client/src/components/ui/button.tsx
+          2,359 100%    5.09kB/s    0:00:00            2,359 100%    5.09kB/s    0:00:00 (xfr#119, to-chk=103/247)
+client/src/components/ui/calendar.tsx
+          2,695 100%    5.80kB/s    0:00:00            2,695 100%    5.80kB/s    0:00:00 (xfr#120, to-chk=102/247)
+client/src/components/ui/card.tsx
+          1,904 100%    4.10kB/s    0:00:00            1,904 100%    4.10kB/s    0:00:00 (xfr#121, to-chk=101/247)
+client/src/components/ui/carousel.tsx
+          6,210 100%   13.36kB/s    0:00:00            6,210 100%   13.36kB/s    0:00:00 (xfr#122, to-chk=100/247)
+client/src/components/ui/chart.tsx
+         10,481 100%   22.54kB/s    0:00:00           10,481 100%   22.54kB/s    0:00:00 (xfr#123, to-chk=99/247)
+client/src/components/ui/checkbox.tsx
+          1,056 100%    2.27kB/s    0:00:00            1,056 100%    2.27kB/s    0:00:00 (xfr#124, to-chk=98/247)
+client/src/components/ui/collapsible.tsx
+            329 100%    0.71kB/s    0:00:00              329 100%    0.71kB/s    0:00:00 (xfr#125, to-chk=97/247)
+client/src/components/ui/command.tsx
+          4,885 100%   10.51kB/s    0:00:00            4,885 100%   10.51kB/s    0:00:00 (xfr#126, to-chk=96/247)
+client/src/components/ui/context-menu.tsx
+          7,428 100%   15.98kB/s    0:00:00            7,428 100%   15.98kB/s    0:00:00 (xfr#127, to-chk=95/247)
+client/src/components/ui/dialog.tsx
+          3,848 100%    8.28kB/s    0:00:00            3,848 100%    8.28kB/s    0:00:00 (xfr#128, to-chk=94/247)
+client/src/components/ui/drawer.tsx
+          3,021 100%    6.50kB/s    0:00:00            3,021 100%    6.50kB/s    0:00:00 (xfr#129, to-chk=93/247)
+client/src/components/ui/dropdown-menu.tsx
+          7,609 100%   16.37kB/s    0:00:00            7,609 100%   16.37kB/s    0:00:00 (xfr#130, to-chk=92/247)
+client/src/components/ui/form.tsx
+          4,120 100%    8.86kB/s    0:00:00            4,120 100%    8.86kB/s    0:00:00 (xfr#131, to-chk=91/247)
+client/src/components/ui/hover-card.tsx
+          1,251 100%    2.69kB/s    0:00:00            1,251 100%    2.69kB/s    0:00:00 (xfr#132, to-chk=90/247)
+client/src/components/ui/input-otp.tsx
+          2,154 100%    4.63kB/s    0:00:00            2,154 100%    4.63kB/s    0:00:00 (xfr#133, to-chk=89/247)
+client/src/components/ui/input.tsx
+            844 100%    1.82kB/s    0:00:00              844 100%    1.82kB/s    0:00:00 (xfr#134, to-chk=88/247)
+client/src/components/ui/label.tsx
+            710 100%    1.53kB/s    0:00:00              710 100%    1.53kB/s    0:00:00 (xfr#135, to-chk=87/247)
+client/src/components/ui/menubar.tsx
+          8,605 100%   18.47kB/s    0:00:00            8,605 100%   18.47kB/s    0:00:00 (xfr#136, to-chk=86/247)
+client/src/components/ui/navigation-menu.tsx
+          5,128 100%   11.01kB/s    0:00:00            5,128 100%   11.01kB/s    0:00:00 (xfr#137, to-chk=85/247)
+client/src/components/ui/pagination.tsx
+          2,751 100%    5.90kB/s    0:00:00            2,751 100%    5.90kB/s    0:00:00 (xfr#138, to-chk=84/247)
+client/src/components/ui/popover.tsx
+          1,280 100%    2.75kB/s    0:00:00            1,280 100%    2.75kB/s    0:00:00 (xfr#139, to-chk=83/247)
+client/src/components/ui/progress.tsx
+            791 100%    1.70kB/s    0:00:00              791 100%    1.70kB/s    0:00:00 (xfr#140, to-chk=82/247)
+client/src/components/ui/radio-group.tsx
+          1,467 100%    3.15kB/s    0:00:00            1,467 100%    3.15kB/s    0:00:00 (xfr#141, to-chk=81/247)
+client/src/components/ui/resizable.tsx
+          1,723 100%    3.70kB/s    0:00:00            1,723 100%    3.70kB/s    0:00:00 (xfr#142, to-chk=80/247)
+client/src/components/ui/scroll-area.tsx
+          1,631 100%    3.50kB/s    0:00:00            1,631 100%    3.50kB/s    0:00:00 (xfr#143, to-chk=79/247)
+client/src/components/ui/select.tsx
+          5,741 100%   12.32kB/s    0:00:00            5,741 100%   12.32kB/s    0:00:00 (xfr#144, to-chk=78/247)
+client/src/components/ui/separator.tsx
+            756 100%    1.62kB/s    0:00:00              756 100%    1.62kB/s    0:00:00 (xfr#145, to-chk=77/247)
+client/src/components/ui/sheet.tsx
+          4,281 100%    9.19kB/s    0:00:00            4,281 100%    9.19kB/s    0:00:00 (xfr#146, to-chk=76/247)
+client/src/components/ui/sidebar.tsx
+         21,846 100%   46.89kB/s    0:00:00           21,846 100%   46.89kB/s    0:00:00 (xfr#147, to-chk=75/247)
+client/src/components/ui/skeleton.tsx
+            261 100%    0.56kB/s    0:00:00              261 100%    0.56kB/s    0:00:00 (xfr#148, to-chk=74/247)
+client/src/components/ui/slider.tsx
+          1,077 100%    2.31kB/s    0:00:00            1,077 100%    2.31kB/s    0:00:00 (xfr#149, to-chk=73/247)
+client/src/components/ui/switch.tsx
+          1,139 100%    2.44kB/s    0:00:00            1,139 100%    2.44kB/s    0:00:00 (xfr#150, to-chk=72/247)
+client/src/components/ui/table.tsx
+          2,765 100%    5.93kB/s    0:00:00            2,765 100%    5.93kB/s    0:00:00 (xfr#151, to-chk=71/247)
+client/src/components/ui/tabs.tsx
+          1,883 100%    4.04kB/s    0:00:00            1,883 100%    4.04kB/s    0:00:00 (xfr#152, to-chk=70/247)
+client/src/components/ui/textarea.tsx
+            689 100%    1.48kB/s    0:00:00              689 100%    1.48kB/s    0:00:00 (xfr#153, to-chk=69/247)
+client/src/components/ui/toast.tsx
+          4,845 100%   10.40kB/s    0:00:00            4,845 100%   10.40kB/s    0:00:00 (xfr#154, to-chk=68/247)
+client/src/components/ui/toaster.tsx
+            772 100%    1.66kB/s    0:00:00              772 100%    1.66kB/s    0:00:00 (xfr#155, to-chk=67/247)
+client/src/components/ui/toggle-group.tsx
+          1,753 100%    3.75kB/s    0:00:00            1,753 100%    3.75kB/s    0:00:00 (xfr#156, to-chk=66/247)
+client/src/components/ui/toggle.tsx
+          1,527 100%    3.27kB/s    0:00:00            1,527 100%    3.27kB/s    0:00:00 (xfr#157, to-chk=65/247)
+client/src/components/ui/tooltip.tsx
+          1,209 100%    2.59kB/s    0:00:00            1,209 100%    2.59kB/s    0:00:00 (xfr#158, to-chk=64/247)
+client/src/hooks/
+client/src/hooks/use-auth.ts
+          1,392 100%    2.98kB/s    0:00:00            1,392 100%    2.98kB/s    0:00:00 (xfr#159, to-chk=63/247)
+client/src/hooks/use-mobile.tsx
+            565 100%    1.21kB/s    0:00:00              565 100%    1.21kB/s    0:00:00 (xfr#160, to-chk=62/247)
+client/src/hooks/use-toast.ts
+          3,895 100%    8.34kB/s    0:00:00            3,895 100%    8.34kB/s    0:00:00 (xfr#161, to-chk=61/247)
+client/src/lib/
+client/src/lib/auth-utils.ts
+            517 100%    1.11kB/s    0:00:00              517 100%    1.11kB/s    0:00:00 (xfr#162, to-chk=60/247)
+client/src/lib/availability.ts
+          5,337 100%   11.43kB/s    0:00:00            5,337 100%   11.43kB/s    0:00:00 (xfr#163, to-chk=59/247)
+client/src/lib/bill-generator.ts
+          9,016 100%   19.31kB/s    0:00:00            9,016 100%   19.31kB/s    0:00:00 (xfr#164, to-chk=58/247)
+client/src/lib/cart.tsx
+          2,124 100%    4.55kB/s    0:00:00            2,124 100%    4.55kB/s    0:00:00 (xfr#165, to-chk=57/247)
+client/src/lib/device-info.ts
+          3,052 100%    6.54kB/s    0:00:00            3,052 100%    6.54kB/s    0:00:00 (xfr#166, to-chk=56/247)
+client/src/lib/queryClient.ts
+          1,522 100%    3.26kB/s    0:00:00            1,522 100%    3.26kB/s    0:00:00 (xfr#167, to-chk=55/247)
+client/src/lib/track-visit.ts
+          1,375 100%    2.94kB/s    0:00:00            1,375 100%    2.94kB/s    0:00:00 (xfr#168, to-chk=54/247)
+client/src/lib/utils.ts
+            166 100%    0.36kB/s    0:00:00              166 100%    0.36kB/s    0:00:00 (xfr#169, to-chk=53/247)
+client/src/pages/
+client/src/pages/contact.tsx
+          5,570 100%   11.93kB/s    0:00:00            5,570 100%   11.90kB/s    0:00:00 (xfr#170, to-chk=52/247)
+client/src/pages/home.tsx
+          1,156 100%    2.47kB/s    0:00:00            1,156 100%    2.47kB/s    0:00:00 (xfr#171, to-chk=51/247)
+client/src/pages/landing.tsx
+         17,460 100%   37.31kB/s    0:00:00           17,460 100%   37.31kB/s    0:00:00 (xfr#172, to-chk=50/247)
+client/src/pages/not-found.tsx
+            711 100%    1.52kB/s    0:00:00              711 100%    1.52kB/s    0:00:00 (xfr#173, to-chk=49/247)
+client/src/pages/privacy-policy.tsx
+          6,007 100%   12.84kB/s    0:00:00            6,007 100%   12.84kB/s    0:00:00 (xfr#174, to-chk=48/247)
+client/src/pages/terms-conditions.tsx
+          6,622 100%   14.15kB/s    0:00:00            6,622 100%   14.15kB/s    0:00:00 (xfr#175, to-chk=47/247)
+client/src/pages/admin/
+client/src/pages/admin/customers.tsx
+         10,749 100%   22.97kB/s    0:00:00           10,749 100%   22.97kB/s    0:00:00 (xfr#176, to-chk=42/247)
+client/src/pages/admin/dashboard.tsx
+         17,350 100%   37.08kB/s    0:00:00           17,350 100%   37.08kB/s    0:00:00 (xfr#177, to-chk=41/247)
+client/src/pages/admin/menu.tsx
+         21,624 100%   46.21kB/s    0:00:00           21,624 100%   46.21kB/s    0:00:00 (xfr#178, to-chk=40/247)
+client/src/pages/admin/offers.tsx
+         15,099 100%   32.19kB/s    0:00:00           15,099 100%   32.19kB/s    0:00:00 (xfr#179, to-chk=39/247)
+client/src/pages/admin/orders.tsx
+         22,042 100%   47.00kB/s    0:00:00           22,042 100%   47.00kB/s    0:00:00 (xfr#180, to-chk=38/247)
+client/src/pages/admin/sections.tsx
+         13,651 100%   29.11kB/s    0:00:00           13,651 100%   29.11kB/s    0:00:00 (xfr#181, to-chk=37/247)
+client/src/pages/admin/settings.tsx
+         15,165 100%   32.34kB/s    0:00:00           15,165 100%   32.34kB/s    0:00:00 (xfr#182, to-chk=36/247)
+client/src/pages/login/
+client/src/pages/login/shop-admin-login.tsx
+          6,180 100%   13.18kB/s    0:00:00            6,180 100%   13.18kB/s    0:00:00 (xfr#183, to-chk=35/247)
+client/src/pages/login/super-admin-login.tsx
+          4,077 100%    8.69kB/s    0:00:00            4,077 100%    8.69kB/s    0:00:00 (xfr#184, to-chk=34/247)
+client/src/pages/shop/
+client/src/pages/shop/my-orders.tsx
+         11,892 100%   25.36kB/s    0:00:00           11,892 100%   25.36kB/s    0:00:00 (xfr#185, to-chk=33/247)
+client/src/pages/shop/shop-page.tsx
+         32,768  42%   69.87kB/s    0:00:00           78,018 100%  165.99kB/s    0:00:00 (xfr#186, to-chk=32/247)
+client/src/pages/super-admin/
+client/src/pages/super-admin/analytics.tsx
+         13,837 100%   29.44kB/s    0:00:00           13,837 100%   29.44kB/s    0:00:00 (xfr#187, to-chk=31/247)
+client/src/pages/super-admin/dashboard.tsx
+         16,384 100%   34.86kB/s    0:00:00           16,384 100%   34.86kB/s    0:00:00 (xfr#188, to-chk=30/247)
+client/src/pages/super-admin/offers.tsx
+         23,809 100%   50.66kB/s    0:00:00           23,809 100%   50.66kB/s    0:00:00 (xfr#189, to-chk=29/247)
+client/src/pages/super-admin/orders.tsx
+         20,190 100%   42.96kB/s    0:00:00           20,190 100%   42.96kB/s    0:00:00 (xfr#190, to-chk=28/247)
+client/src/pages/super-admin/shops.tsx
+         23,433 100%   49.86kB/s    0:00:00           23,433 100%   49.86kB/s    0:00:00 (xfr#191, to-chk=27/247)
+client/src/pages/super-admin/themes.tsx
+         13,389 100%   28.49kB/s    0:00:00           13,389 100%   28.49kB/s    0:00:00 (xfr#192, to-chk=26/247)
+client/src/pages/super-admin/user-data.tsx
+         11,657 100%   24.75kB/s    0:00:00           11,657 100%   24.75kB/s    0:00:00 (xfr#193, to-chk=25/247)
+migrations/
+migrations/0000_windy_doctor_doom.sql
+         13,292 100%   28.22kB/s    0:00:00           13,292 100%   28.22kB/s    0:00:00 (xfr#194, to-chk=24/247)
+migrations/0001_add_new_shop_columns.sql
+            174 100%    0.37kB/s    0:00:00              174 100%    0.37kB/s    0:00:00 (xfr#195, to-chk=23/247)
+migrations/meta/
+migrations/meta/0000_snapshot.json
+         32,768  64%   69.57kB/s    0:00:00           50,872 100%  108.00kB/s    0:00:00 (xfr#196, to-chk=21/247)
+migrations/meta/_journal.json
+            359 100%    0.76kB/s    0:00:00              359 100%    0.76kB/s    0:00:00 (xfr#197, to-chk=20/247)
+script/
+script/build.ts
+          1,417 100%    3.01kB/s    0:00:00            1,417 100%    3.01kB/s    0:00:00 (xfr#198, to-chk=19/247)
+script/create-pg-hba-conf.sh
+          3,484 100%    7.40kB/s    0:00:00            3,484 100%    7.40kB/s    0:00:00 (xfr#199, to-chk=18/247)
+script/fix-vps-errors.sh
+          4,122 100%    8.75kB/s    0:00:00            4,122 100%    8.75kB/s    0:00:00 (xfr#200, to-chk=17/247)
+server/
+server/db.ts
+          2,025 100%    4.30kB/s    0:00:00            2,025 100%    4.30kB/s    0:00:00 (xfr#201, to-chk=16/247)
+server/index.ts
+          8,525 100%   18.10kB/s    0:00:00            8,525 100%   18.10kB/s    0:00:00 (xfr#202, to-chk=15/247)
+server/init-db.ts
+          2,862 100%    6.08kB/s    0:00:00            2,862 100%    6.08kB/s    0:00:00 (xfr#203, to-chk=14/247)
+server/routes.ts
+         32,768  42%   69.57kB/s    0:00:00           77,921 100%  165.06kB/s    0:00:00 (xfr#204, to-chk=13/247)
+server/static.ts
+          1,043 100%    2.21kB/s    0:00:00            1,043 100%    2.21kB/s    0:00:00 (xfr#205, to-chk=12/247)
+server/storage.ts
+         32,768  81%   69.41kB/s    0:00:00           40,111 100%   84.97kB/s    0:00:00 (xfr#206, to-chk=11/247)
+server/vite.ts
+          1,534 100%    3.25kB/s    0:00:00            1,534 100%    3.25kB/s    0:00:00 (xfr#207, to-chk=10/247)
+server/replit_integrations/
+server/replit_integrations/auth/
+server/replit_integrations/auth/index.ts
+            178 100%    0.38kB/s    0:00:00              178 100%    0.38kB/s    0:00:00 (xfr#208, to-chk=7/247)
+server/replit_integrations/auth/replitAuth.ts
+          4,474 100%    9.48kB/s    0:00:00            4,474 100%    9.46kB/s    0:00:00 (xfr#209, to-chk=6/247)
+server/replit_integrations/auth/routes.ts
+            609 100%    1.29kB/s    0:00:00              609 100%    1.29kB/s    0:00:00 (xfr#210, to-chk=5/247)
+server/replit_integrations/auth/storage.ts
+            943 100%    1.99kB/s    0:00:00              943 100%    1.99kB/s    0:00:00 (xfr#211, to-chk=4/247)
+shared/
+shared/schema.ts
+         25,642 100%   54.20kB/s    0:00:00           25,642 100%   54.20kB/s    0:00:00 (xfr#212, to-chk=3/247)
+shared/models/
+shared/models/auth.ts
+          1,010 100%    2.13kB/s    0:00:00            1,010 100%    2.13kB/s    0:00:00 (xfr#213, to-chk=1/247)
+uploads/
+uploads/.gitkeep
+              0 100%    0.00kB/s    0:00:00 (xfr#214, to-chk=0/247)
+
+sent 34,381,018 bytes  received 4,253 bytes  5,290,041.69 bytes/sec
+total size is 36,465,573  speedup is 1.06

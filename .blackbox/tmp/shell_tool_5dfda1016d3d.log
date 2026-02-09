@@ -1,0 +1,6 @@
+bash: line 1: /tmp/server.log: Permission denied
+11:47:35 AM [express] serving on port 80
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+12:03:13 PM [express] GET /api/shops/list 200 in 18ms :: []
+12:05:08 PM [express] GET /api/shops/list 200 in 11ms :: []

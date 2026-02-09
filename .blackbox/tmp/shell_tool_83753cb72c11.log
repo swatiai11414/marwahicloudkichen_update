@@ -1,0 +1,94 @@
+[0;34m╔════════════════════════════════════════════════════════════╗[0m
+[0;34m║  HDOS - Hotel Digital Operating System                      ║[0m
+[0;34m║  Complete Setup Script (main.yml workflow)               ║[0m
+[0;34m╚════════════════════════════════════════════════════════════╝[0m
+
+[0;36m📦 Server Port: 5000[0m
+
+[1;33m╔════════════════════════════════════════════════════════════╗[0m
+[1;33m║  Step 1: Updating system packages...                      ║[0m
+[1;33m╚════════════════════════════════════════════════════════════╝[0m
+[0;32m✓ System updated successfully[0m
+
+[1;33m╔════════════════════════════════════════════════════════════╗[0m
+[1;33m║  Step 2: Installing Node.js 24...                  ║[0m
+[1;33m╚════════════════════════════════════════════════════════════╝[0m
+Installing Node.js 24...
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+dpkg-preconfigure: unable to re-open stdin: 
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+dpkg-preconfigure: unable to re-open stdin: 
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+[0;32m✓ Node.js 24 installed[0m
+
+[0;36m  Node.js version: v24.13.0[0m
+[0;36m  npm version: 11.6.2[0m
+
+[1;33m╔════════════════════════════════════════════════════════════╗[0m
+[1;33m║  Step 3: Installing PostgreSQL...                           ║[0m
+[1;33m╚════════════════════════════════════════════════════════════╝[0m
+[0;32m✓ PostgreSQL is already installed[0m
+[0;36m  Version: psql (PostgreSQL) 16.11 (Ubuntu 16.11-0ubuntu0.24.04.1)[0m
+
+[1;33m╔════════════════════════════════════════════════════════════╗[0m
+[1;33m║  Step 4: Configuring PostgreSQL...                          ║[0m
+[1;33m╚════════════════════════════════════════════════════════════╝[0m
+PostgreSQL version: 16
+Configuring pg_hba.conf...
+✓ pg_hba.conf created
+Starting PostgreSQL service...
+[0;32m✓ PostgreSQL service started[0m
+Setting up fresh database and user...
+DROP DATABASE
+Creating user 'Swatiai11414'...
+ERROR:  role "swatiai11414" already exists

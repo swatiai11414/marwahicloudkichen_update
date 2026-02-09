@@ -1,0 +1,26 @@
+
+> rest-express@1.0.0 build
+> tsx script/build.ts
+
+building client...
+vite v7.3.0 building client environment for production...
+transforming...
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+✓ 1785 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                   2.55 kB │ gzip:   0.98 kB
+../dist/public/assets/index-TsouS-u_.css  117.11 kB │ gzip:  17.93 kB
+../dist/public/assets/index-C3Ts2fKS.js   767.54 kB │ gzip: 212.83 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 14.77s
+building server...
+
+  dist/index.cjs  1.2mb ⚠️
+
+⚡ Done in 1210ms

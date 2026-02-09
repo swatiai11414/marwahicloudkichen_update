@@ -1,0 +1,31 @@
+
+> rest-express@1.0.0 db:push
+> drizzle-kit push
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file '/home/ubuntu/drizzle.config.ts'
+Using 'pg' driver for database querying
+[⣷] Pulling schema from database...
+error: role "Swatiai11414" does not exist
+    at /home/ubuntu/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/home/ubuntu/node_modules/drizzle-kit/bin.cjs:80622:26)
+    at async fromDatabase2 (/home/ubuntu/node_modules/drizzle-kit/bin.cjs:19276:25) {
+  length: 104,
+  severity: 'FATAL',
+  code: '28000',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'miscinit.c',
+  line: '799',
+  routine: 'InitializeSessionUserId'
+}

@@ -1,0 +1,16 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+[dotenv@17.2.4] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+✓ Database connection successful
+✓ Database tables already exist (18 tables)
+✓ Database schema updated with new columns
+11:23:28 AM [express] serving on port 5000
+11:23:37 AM [express] GET /api/shops 200 in 43ms
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+11:23:45 AM [express] GET /api/shops/test 404 in 6ms :: {"message":"Shop not found"}
+11:24:13 AM [express] POST /api/shops/himanshu/orders 400 in 10ms :: {"message":"Invalid item: undefined"}
+11:24:34 AM [express] POST /api/shops/himanshu/orders 400 in 5ms :: {"message":"Invalid item: undefined"}
+11:25:28 AM [express] POST /api/shops/himanshu/orders 201 in 26ms :: {"id":"3d5eff21-b83e-417e-acff-97e3e1998b23","shopId":"6673d2a8-a306-4032-aa05-be4a876d14eb","customerId":null,"orderNumber":null,"tableQr":null,"deliveryAddress":null,"subtotal":"100.00","discountAmount":"0.00","deliveryCharge":"0.00","totalAmount":"100.00","status":"pending_payment","paymentMode":null,"paymentReference":null,"paymentVerifiedAt":null,"paymentVerifiedBy":null,"billNumber":null,"billUrl":null,"notes":null,"createdAt":"2026-02-09T11:25:28.326Z","updatedAt":"2026-02-09T11:25:28.326Z"}
