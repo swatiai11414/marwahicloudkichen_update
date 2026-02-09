@@ -36,7 +36,7 @@ show_help() {
     echo "  restart            Restart server"
     echo "  status             Check status"
     echo "  logs               View logs"
-    echo "  all                Full setup"
+    echo "  all                Full setup (install + migrate + start)"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -65,7 +65,7 @@ log_error() { echo -e "${RED}✗  $1${NC}"; ERROR_COUNT=$((ERROR_COUNT + 1)); }
 wait_postgres() {
     log_info "Waiting for PostgreSQL..."
     for i in {1..30}; do
-        if pg_isready -h localhost -p 5432 -U $DB_USER -d $DB_NAME 2>/dev/null; then
+        if PGPASSWORD="$DB_PASSWORD" psql -h localhost -p 5432 -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" > /dev/null 2>&1; then
             log_success "PostgreSQL ready!"
             return 0
         fi
@@ -108,24 +108,21 @@ do_install() {
     echo -e "${YELLOW}║  Step 4: Configuring database...                          ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
     
-    PG_VERSION=$(ls /etc/postgresql/ 2>/dev/null | grep -E '^[0-9]+$' | sort -n | tail -1)
-    [ -z "$PG_VERSION" ] && PG_VERSION=16
-    
-    sudo bash -c "cat > /etc/postgresql/$PG_VERSION/main/pg_hba.conf <<EOF
-local   all             all                                     md5
-host    all             all             127.0.0.1/32            md5
-host    all             all             ::1/128                 md5
-EOF"
-    
-    sudo service postgresql start 2>/dev/null
+    # Ensure PostgreSQL is running
+    sudo service postgresql start 2>/dev/null || sudo pg_ctlcluster 16 main start 2>/dev/null || true
     sleep 2
     
-    sudo su - postgres -c "psql -c \"CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD' SUPERUSER;\" 2>/dev/null" || true
-    sudo su - postgres -c "psql -c \"CREATE DATABASE $DB_NAME OWNER $DB_USER;\" 2>/dev/null" || true
+    # Create user and database
+    sudo su - postgres -c "psql -c \\\"DROP DATABASE IF EXISTS $DB_NAME;\\\" 2>/dev/null" || true
+    sudo su - postgres -c "psql -c \\\"DROP USER IF EXISTS $DB_USER;\\\" 2>/dev/null" || true
+    sudo su - postgres -c "psql -c \\\"CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD' SUPERUSER;\\\""
+    sudo su - postgres -c "psql -c \\\"CREATE DATABASE $DB_NAME OWNER $DB_USER;\\\""
     
-    sudo service postgresql restart
+    # Restart PostgreSQL to apply changes
+    sudo service postgresql restart 2>/dev/null || sudo pg_ctlcluster 16 main restart 2>/dev/null || true
     sleep 2
     
+    # Test connection
     export PGPASSWORD="$DB_PASSWORD"
     if psql -h localhost -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" > /dev/null 2>&1; then
         log_success "Database configured!"
@@ -138,7 +135,9 @@ EOF"
     echo -e "${YELLOW}║  Step 5: Creating .env file...                            ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
     
-    ENCODED_PASSWORD=$(echo -n "$DB_PASSWORD" | sed 's/@/%40/g' | sed 's/#/%23/g')
+    # URL encode the password
+    ENCODED_PASSWORD=$(echo -n "$DB_PASSWORD" | sed 's/@/%40/g' | sed 's/#/%23/g' | sed 's/@@@/%40%40%40/g')
+    
     cat > .env <<EOF
 DATABASE_URL=postgresql://$DB_USER:$ENCODED_PASSWORD@localhost:5432/$DB_NAME
 SESSION_SECRET=0d30d9ade1002580c7b3d528963206b9f8292d4c3bc33a63083c738b4c2a54b0
@@ -152,8 +151,22 @@ EOF
     echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${YELLOW}║  Step 6: Installing dependencies...                       ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
-    npm ci 2>&1 > /dev/null || npm install 2>&1 > /dev/null
-    log_success "Dependencies installed"
+    
+    # Check if node_modules exists
+    if [ -d "node_modules" ]; then
+        log_info "node_modules exists, running npm ci..."
+        npm ci 2>&1 | tail -5 || npm install 2>&1 | tail -5
+    else
+        log_info "Installing dependencies..."
+        npm install 2>&1 | tail -10
+    fi
+    
+    if [ -d "node_modules" ]; then
+        log_success "Dependencies installed"
+    else
+        log_error "Failed to install dependencies"
+        exit 1
+    fi
 }
 
 do_migrate() {
@@ -163,13 +176,16 @@ do_migrate() {
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
     
     wait_postgres || return 1
-    npm run db:push > /tmp/db-mig.log 2>&1
-    log_success "Migrations done"
     
-    if [ -f "migrations/0003_add_store_availability_tables.sql" ]; then
-        export PGPASSWORD="$DB_PASSWORD"
-        psql -h localhost -U "$DB_USER" -d "$DB_NAME" -f migrations/0003_add_store_availability_tables.sql > /tmp/mig-0003.log 2>&1 || true
-        log_success "Migration 0003 applied"
+    # Run drizzle push
+    log_info "Running database migrations..."
+    npm run db:push 2>&1 | tail -10
+    
+    if [ $? -eq 0 ]; then
+        log_success "Database migrations completed!"
+    else
+        log_error "Database migrations failed!"
+        exit 1
     fi
 }
 
@@ -179,26 +195,47 @@ do_start() {
     echo -e "${YELLOW}║  Starting server on port $PORT...                         ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
     
+    # Update PORT in .env
     sed -i "s/PORT=.*/PORT=$PORT/" .env 2>/dev/null || true
-    sudo pkill -f 'tsx server/index.ts' 2>/dev/null || true
+    
+    # Kill existing server
+    sudo pkill -9 -f 'tsx server/index.ts' 2>/dev/null || true
+    sudo pkill -9 -f 'node.*tsx' 2>/dev/null || true
     sleep 2
     
-    cd "$(dirname "$0")"
-    sudo PORT=$PORT npm run dev > /tmp/server.log 2>&1 &
-    sleep 6
+    # Free port if occupied
+    sudo fuser -k ${PORT}/tcp 2>/dev/null || true
+    sleep 1
     
-    if sudo lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null 2>&1; then
-        log_success "Server started on port $PORT"
-    else
-        log_error "Server failed to start"
-        tail -5 /tmp/server.log 2>/dev/null
-    fi
+    cd "$(dirname "$0")"
+    
+    # Start server with sudo
+    log_info "Starting server..."
+    sudo PORT=$PORT NODE_ENV=development nohup npm run dev > /tmp/server.log 2>&1 &
+    
+    # Wait for server to start
+    log_info "Waiting for server to start..."
+    for i in {1..15}; do
+        if sudo lsof -Pi :${PORT} -sTCP:LISTEN -t >/dev/null 2>&1; then
+            log_success "Server started successfully on port $PORT!"
+            return 0
+        fi
+        sleep 2
+    done
+    
+    log_error "Server failed to start!"
+    echo ""
+    echo "Server log:"
+    tail -20 /tmp/server.log 2>/dev/null
+    exit 1
 }
 
 do_stop() {
     echo ""
     echo -e "${YELLOW}Stopping server...${NC}"
-    sudo pkill -f 'tsx server/index.ts' 2>/dev/null || true
+    sudo pkill -9 -f 'tsx server/index.ts' 2>/dev/null || true
+    sudo pkill -9 -f 'node.*tsx' 2>/dev/null || true
+    sudo fuser -k ${PORT}/tcp 2>/dev/null || true
     sleep 2
     log_success "Server stopped"
 }
@@ -215,23 +252,27 @@ do_status() {
     echo -e "${YELLOW}║  Server Status                                           ║${NC}"
     echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
     
-    if sudo lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null 2>&1; then
+    if sudo lsof -Pi :${PORT} -sTCP:LISTEN -t >/dev/null 2>&1; then
         log_success "Server RUNNING on port $PORT"
     else
-        log_error "Server NOT RUNNING"
+        log_error "Server NOT RUNNING on port $PORT"
     fi
     
     echo ""
     echo "Node: $(node -v 2>/dev/null || echo 'N/A')"
-    echo "PG: $(pg_isready -h localhost -p 5432 2>/dev/null && echo 'Ready' || echo 'N/A')"
+    echo "PostgreSQL: $(PGPASSWORD="$DB_PASSWORD" psql -h localhost -p 5432 -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" > /dev/null 2>&1 && echo 'Connected' || echo 'Not Connected')"
+    echo ""
+    echo "Recent server logs:"
+    tail -10 /tmp/server.log 2>/dev/null || echo "No logs found"
 }
 
 do_logs() {
     echo ""
     echo -e "${YELLOW}Server Logs${NC}"
-    tail -50 /tmp/server.log 2>/dev/null || echo "No logs"
+    tail -50 /tmp/server.log 2>/dev/null || echo "No logs found"
 }
 
+# Main execution
 case $COMMAND in
     install) do_install ;;
     migrate) do_migrate ;;
@@ -240,7 +281,11 @@ case $COMMAND in
     restart) do_restart ;;
     status) do_status ;;
     logs) do_logs ;;
-    all) do_install; do_migrate; do_start ;;
+    all) 
+        do_install
+        do_migrate
+        do_start 
+        ;;
 esac
 
 echo ""
@@ -250,4 +295,5 @@ echo -e "${GREEN}╚════════════════════
 echo ""
 IP=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
 echo -e "${CYAN}🌐 http://$IP:$PORT${NC}"
+echo -e "${CYAN}🔐 Super Admin: http://$IP:$PORT/login/super-admin${NC}"
 echo ""
