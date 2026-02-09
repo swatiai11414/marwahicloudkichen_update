@@ -32,6 +32,12 @@ A multi-tenant SaaS platform for hotels and restaurants featuring QR-based order
 - Sales and revenue analytics
 - Visitor data export
 
+### 🔄 Auto-Restart & Background Execution
+- Server runs in background using systemd
+- Auto-restart on crash
+- Auto-start on server reboot
+- No terminal required after start
+
 ## Tech Stack
 
 - **Frontend:** React 18, TypeScript, Vite, TailwindCSS, shadcn/ui
@@ -55,6 +61,11 @@ ssh -i miss.pem ubuntu@13.50.247.62
 ```bash
 cd /home/ubuntu/marwahicloudkichen_update
 git pull
+
+# Option 1: Use dev.sh (RECOMMENDED - runs in background)
+./dev.sh start
+
+# Option 2: Use setup.sh (full setup)
 ./setup.sh all
 ```
 
@@ -62,22 +73,71 @@ That's it! Your server will be running at: **http://13.50.247.62**
 
 ---
 
-## 📖 User Guide
+## 📖 Available Scripts
 
-### Available Scripts
+### 🎯 Recommended: dev.sh (Background Server)
 
-| Script | Description |
-|--------|-------------|
-| `./setup.sh all` | Complete setup: install, migrate, start |
-| `./setup.sh install` | Install dependencies & setup database |
-| `./setup.sh migrate` | Run database migrations |
-| `./setup.sh start` | Start the server |
-| `./setup.sh stop` | Stop the server |
-| `./setup.sh restart` | Restart the server |
-| `./setup.sh status` | Check server status |
-| `./setup.sh logs` | View server logs |
-| `./fix-server.sh` | Fix common issues & restart server |
-| `./kill-all.sh` | Kill all project services |
+```bash
+./dev.sh start      # Start server in BACKGROUND with auto-restart
+./dev.sh stop       # Stop server
+./dev.sh restart    # Restart server
+./dev.sh status     # Check if server is running
+./dev.sh logs       # View server logs
+```
+
+**Benefits:**
+- ✅ Runs in background even after terminal close
+- ✅ Auto-restart on crash
+- ✅ Auto-start on server reboot
+- ✅ Managed by systemd
+
+### 🛠️ setup.sh (Full Setup)
+
+```bash
+./setup.sh all        # Complete: install + migrate + start
+./setup.sh install    # Install dependencies & configure database
+./setup.sh migrate    # Run database migrations
+./setup.sh start      # Start server (uses dev.sh internally)
+./setup.sh stop       # Stop server
+./setup.sh restart    # Restart server
+./setup.sh status     # Check server & database status
+./setup.sh logs       # View server logs
+```
+
+### 🔧 Utility Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `./fix-server.sh` | Quick fix & restart (no git pull) |
+| `./kill-all.sh` | Kill all project processes |
+| `./security-setup.sh` | Setup firewall & security |
+| `./secure-permissions.sh` | Secure file permissions |
+| `./server-status.sh` | Detailed status check |
+
+---
+
+## 🎯 Quick Commands Reference
+
+### First Time Setup
+```bash
+./setup.sh all
+```
+
+### Daily Operations
+```bash
+./dev.sh start           # Start server (background)
+./dev.sh status          # Check if running
+./dev.sh logs            # View logs
+./dev.sh restart         # Restart if needed
+```
+
+### Fix Issues
+```bash
+./dev.sh stop            # Stop server
+./kill-all.sh            # Kill all processes
+./dev.sh start           # Restart
+./server-status.sh       # Check everything
+```
 
 ---
 
@@ -89,13 +149,13 @@ That's it! Your server will be running at: **http://13.50.247.62**
 # Connect to VPS
 ssh -i miss.pem ubuntu@YOUR_SERVER_IP
 
-# Navigate to project directory
+# Navigate to project
 cd /home/ubuntu/marwahicloudkichen_update
 
 # Pull latest code
 git pull
 
-# Run complete setup
+# Run complete setup (installs dependencies, sets up DB, starts server)
 ./setup.sh all
 ```
 
@@ -103,36 +163,44 @@ git pull
 
 ```bash
 # Check server status
-./setup.sh status
+./dev.sh status
 
 # View logs
-./setup.sh logs
+./dev.sh logs
 
 # Restart server
-./setup.sh restart
+./dev.sh restart
 
 # Stop server
-./setup.sh stop
+./dev.sh stop
 ```
 
 ### 3. Fix Server Issues
 
 ```bash
-# If server is not responding or has errors
-./kill-all.sh      # Kill all processes
-./fix-server.sh    # Restart with fresh code
-./setup.sh status  # Verify it's running
+# If server is not responding
+./dev.sh stop
+./kill-all.sh
+./dev.sh start
+./dev.sh status
 ```
 
-### 4. Manual Server Start
+### 4. Background Server Management
 
 ```bash
-# Kill old processes
-sudo pkill -9 -f tsx
+# The server runs in background and auto-restarts on:
+# - Server crash
+# - Process failure
+# - System reboot (if enabled)
 
-# Start server
-cd /home/ubuntu/marwahicloudkichen_update
-sudo NODE_ENV=development PORT=80 npx tsx server/index.ts &
+# Check systemd service
+sudo systemctl status hdos
+
+# Manual service commands
+sudo systemctl start hdos
+sudo systemctl stop hdos
+sudo systemctl restart hdos
+sudo systemctl enable hdos  # Enable auto-start on boot
 ```
 
 ---
@@ -204,10 +272,13 @@ marwahicloudkichen_update/
 ├── shared/               # Shared code
 │   └── schema.ts         # Database schema
 ├── uploads/              # User uploaded files
-├── scripts/              # Build & utility scripts
+├── scripts/              # Utility scripts
 ├── setup.sh              # Main setup script
+├── dev.sh                # Background server script
 ├── fix-server.sh         # Fix script
 ├── kill-all.sh           # Kill all services
+├── security-setup.sh     # Security setup
+├── server-status.sh      # Status check
 ├── package.json
 ├── vite.config.ts
 └── drizzle.config.ts
@@ -311,7 +382,7 @@ NODE_ENV=development
 # Install dependencies
 npm install
 
-# Start development server
+# Start development server (foreground)
 npm run dev
 
 # TypeScript check
@@ -344,8 +415,11 @@ sudo lsof -i :80
 # Kill process on port
 sudo fuser -k 80/tcp
 
-# Restart with logs
-./setup.sh logs
+# Check status
+./dev.sh status
+
+# View logs
+./dev.sh logs
 ```
 
 ### Database Connection Failed
@@ -361,12 +435,18 @@ sudo service postgresql start
 PGPASSWORD=Swatiai@@@###2003 psql -U swatiai11414 -h localhost -d hdos
 ```
 
-### API Returning HTML Instead of JSON
+### Server Stops After Terminal Close
 
-This is a known issue. Fix it with:
+**This is fixed!** Use `./dev.sh start` instead:
 
 ```bash
-./fix-server.sh
+# Start in background with auto-restart
+./dev.sh start
+
+# Verify it's running
+./dev.sh status
+
+# Server will keep running even after logout!
 ```
 
 ### Blank Page on Browser
@@ -384,7 +464,8 @@ curl http://13.50.247.62/api/shops/list
 ### Reset Everything
 
 ```bash
-# Kill all processes
+# Stop server
+./dev.sh stop
 ./kill-all.sh
 
 # Reset database (CAUTION: deletes all data)
@@ -397,27 +478,60 @@ sudo su - postgres -c "psql -c 'DROP USER swatiai11414;'"
 
 ---
 
-## 📝 Common Commands Quick Reference
+## 📝 Complete Commands Quick Reference
 
+### Server Management (Use These!)
 ```bash
-# Setup
-./setup.sh all              # Full setup + start
-./setup.sh install          # Install dependencies
-./setup.sh migrate          # Run migrations
-./setup.sh start            # Start server
-./setup.sh stop             # Stop server
-./setup.sh restart          # Restart server
-./setup.sh status           # Check status
-./setup.sh logs             # View logs
+./dev.sh start           # Start server in background ⭐ RECOMMENDED
+./dev.sh status          # Check if running
+./dev.sh logs            # View logs
+./dev.sh restart         # Restart server
+./dev.sh stop            # Stop server
+```
 
-# Fix
-./fix-server.sh             # Fix & restart
-./kill-all.sh               # Kill all services
+### Full Setup
+```bash
+./setup.sh all           # Full setup + start
+./setup.sh install       # Install dependencies
+./setup.sh migrate       # Database migrations
+./setup.sh start         # Start server
+./setup.sh stop          # Stop server
+./setup.sh restart       # Restart server
+./setup.sh status        # Status check
+./setup.sh logs          # View logs
+```
 
-# Git
+### Fix & Utility
+```bash
+./fix-server.sh          # Quick fix & restart
+./kill-all.sh            # Kill all processes
+./server-status.sh       # Detailed status
+./security-setup.sh      # Security setup
+./secure-permissions.sh  # File permissions
+```
+
+### Git Commands
+```bash
 git pull                    # Update code
 git add . && git commit -m "message" && git push  # Commit & push
 ```
+
+---
+
+## 🔐 Security Scripts
+
+### Setup Security
+```bash
+./security-setup.sh         # Setup firewall, fail2ban
+./secure-permissions.sh     # Secure file permissions
+```
+
+**What it does:**
+- Configures UFW firewall
+- Installs Fail2ban (brute force protection)
+- Secures .env file (600 permissions)
+- Protects uploads folder
+- Creates .htaccess rules
 
 ---
 
@@ -425,10 +539,11 @@ git add . && git commit -m "message" && git push  # Commit & push
 
 If you encounter any issues:
 
-1. Check server logs: `./setup.sh logs`
-2. Check API health: `curl http://YOUR_IP/api/health`
-3. Run fix script: `./fix-server.sh`
-4. Take screenshot of error and share
+1. Check server status: `./dev.sh status`
+2. View logs: `./dev.sh logs`
+3. Restart server: `./dev.sh restart`
+4. Full check: `./server-status.sh`
+5. Take screenshot of error and share
 
 ---
 
@@ -438,8 +553,9 @@ If you encounter any issues:
 - **Session Secret:** Change in `.env` for production
 - **Database Password:** Change after initial setup
 - **HTTPS:** Enable SSL certificate for production
+- **Firewall:** Run `./security-setup.sh` for basic security
+- **Permissions:** Run `./secure-permissions.sh` to secure files
 
 ---
 
 **Built with ❤️ for Hotels and Restaurants**
-
