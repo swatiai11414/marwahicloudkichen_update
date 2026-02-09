@@ -17,7 +17,7 @@ NC='\033[0m'
 
 PROJECT_NAME="HDOS - Hotel Digital Operating System"
 DB_NAME="hdos"
-DB_USER="Swatiai11414"
+DB_USER="swatiai11414"
 DB_PASSWORD="Swatiai@@@###2003"
 NODE_VERSION="24"
 ERROR_COUNT=0
@@ -150,18 +150,26 @@ echo -e "${GREEN}✓ PostgreSQL service started${NC}"
 
 # Drop existing user and database for clean setup
 echo "Setting up fresh database and user..."
-sudo su - postgres -c "psql -c \"DROP DATABASE IF EXISTS $DB_NAME;\"" 2>/dev/null || true
-sudo su - postgres -c "psql -c \"DROP USER IF EXISTS $DB_USER CASCADE;\"" 2>/dev/null || true
-sleep 1
 
-# Create user
-echo "Creating user '$DB_USER'..."
-sudo su - postgres -c "psql -c \"CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD' SUPERUSER;\""
-echo -e "${GREEN}✓ User '$DB_USER' created${NC}"
+# Check if user exists and handle accordingly
+USER_EXISTS=$(sudo su - postgres -c "psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='$DB_USER';\"" 2>/dev/null)
+if [ "$USER_EXISTS" = "1" ]; then
+    echo "User '$DB_USER' already exists, resetting password..."
+    sudo su - postgres -c "psql -c \"ALTER USER $DB_USER WITH PASSWORD '$DB_PASSWORD';\"" 2>/dev/null
+else
+    echo "Creating user '$DB_USER'..."
+    sudo su - postgres -c "psql -c \"CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD' SUPERUSER;\"" 2>/dev/null
+fi
+echo -e "${GREEN}✓ User '$DB_USER' ready${NC}"
 
-# Create database
+# Check if database exists and handle accordingly
+DB_EXISTS=$(sudo su - postgres -c "psql -tAc \"SELECT 1 FROM pg_database WHERE datname='$DB_NAME';\"" 2>/dev/null)
+if [ "$DB_EXISTS" = "1" ]; then
+    echo "Database '$DB_NAME' already exists, dropping and recreating..."
+    sudo su - postgres -c "psql -c \"DROP DATABASE $DB_NAME;\"" 2>/dev/null
+fi
 echo "Creating database '$DB_NAME'..."
-sudo su - postgres -c "psql -c \"CREATE DATABASE $DB_NAME OWNER $DB_USER;\""
+sudo su - postgres -c "psql -c \"CREATE DATABASE $DB_NAME OWNER $DB_USER;\"" 2>/dev/null
 echo -e "${GREEN}✓ Database '$DB_NAME' created${NC}"
 
 # Restart PostgreSQL to apply all changes
