@@ -40,10 +40,10 @@ export function generateBillHTML(data: BillData): string {
     .map(
       (item) => `
       <tr>
-        <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${item.name}</td>
-        <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-        <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right;">₹${item.price.toFixed(2)}</td>
-        <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right;">₹${(item.quantity * item.price).toFixed(2)}</td>
+        <td style="padding: 10px 4px; border-bottom: 1px solid #e2e8f0;">${item.name}</td>
+        <td style="padding: 10px 4px; border-bottom: 1px solid #e2e8f0; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px 4px; border-bottom: 1px solid #e2e8f0; text-align: right;">₹${item.price.toFixed(2)}</td>
+        <td style="padding: 10px 4px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 500;">₹${(item.quantity * item.price).toFixed(2)}</td>
       </tr>
     `
     )
@@ -57,24 +57,39 @@ export function generateBillHTML(data: BillData): string {
       <title>Bill - ${data.billNumber}</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-        .bill-container { max-width: 400px; margin: 0 auto; background: white; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px dashed #ddd; }
-        .shop-logo { max-width: 120px; max-height: 80px; margin-bottom: 10px; }
-        .shop-name { font-size: 24px; font-weight: bold; color: #333; margin-bottom: 5px; }
-        .shop-details { font-size: 12px; color: #666; }
-        .bill-info { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 13px; }
-        .customer-info { background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 13px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 13px; }
-        th { text-align: left; padding: 8px 0; border-bottom: 2px solid #333; font-weight: 600; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f1f5f9; padding: 20px; }
+        .bill-container { max-width: 420px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 24px; text-align: center; }
+        .shop-logo { max-width: 90px; max-height: 60px; margin-bottom: 12px; border-radius: 8px; object-fit: contain; background: white; padding: 8px; }
+        .shop-name { font-size: 22px; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .shop-details { font-size: 11px; opacity: 0.9; line-height: 1.6; }
+        .bill-info { display: flex; justify-content: space-between; padding: 16px 20px; background: #f8fafc; border-bottom: 1px dashed #cbd5e1; }
+        .bill-info-box { font-size: 12px; line-height: 1.7; color: #475569; }
+        .bill-info-box strong { color: #1e293b; }
+        .bill-info-box:last-child { text-align: right; }
+        .customer-info { margin: 16px 20px; padding: 14px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 10px; border-left: 4px solid #0ea5e9; }
+        .customer-info-title { font-size: 11px; font-weight: 600; color: #0369a1; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .customer-info-text { font-size: 13px; color: #1e293b; line-height: 1.6; }
+        .items-section { padding: 0 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+        th { text-align: left; padding: 12px 4px; border-bottom: 2px solid #334155; font-weight: 600; color: #334155; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
         th:nth-child(2), th:nth-child(3), th:nth-child(4) { text-align: center; }
         th:last-child { text-align: right; }
-        .totals { border-top: 2px dashed #ddd; padding-top: 10px; }
-        .total-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; }
-        .total-row.final { font-size: 18px; font-weight: bold; border-top: 1px solid #333; margin-top: 5px; padding-top: 10px; }
-        .payment-info { text-align: center; margin-top: 20px; padding: 10px; background: #e8f5e9; border-radius: 5px; }
-        .footer { text-align: center; margin-top: 20px; padding-top: 15px; border-top: 2px dashed #ddd; font-size: 12px; color: #666; }
-        @media print { body { background: white; padding: 0; } .bill-container { box-shadow: none; } }
+        .totals { background: #f8fafc; margin: 0 20px 16px; padding: 16px; border-radius: 10px; }
+        .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #64748b; }
+        .total-row.final { font-size: 22px; font-weight: 700; color: #0f172a; border-top: 2px solid #334155; margin-top: 8px; padding-top: 12px; }
+        .payment-info { margin: 0 20px 20px; padding: 14px; background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-radius: 10px; text-align: center; border: 1px solid #86efac; }
+        .payment-info-text { color: #166534; font-weight: 600; font-size: 14px; }
+        .payment-info small { color: #15803d; display: block; margin-top: 4px; }
+        .footer { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 24px; text-align: center; }
+        .powered-by { font-size: 14px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; color: #60a5fa; }
+        .thank-you { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+        .visit-info { font-size: 12px; opacity: 0.8; font-style: italic; }
+        .divider { height: 1px; background: linear-gradient(90deg, transparent, #cbd5e1, transparent); margin: 0 20px; }
+        @media print { 
+          body { background: white; padding: 0; } 
+          .bill-container { box-shadow: none; border-radius: 0; } 
+        }
       </style>
     </head>
     <body>
@@ -83,39 +98,46 @@ export function generateBillHTML(data: BillData): string {
           ${data.shopLogo ? `<img src="${data.shopLogo}" alt="${data.shopName} Logo" class="shop-logo" />` : ""}
           <div class="shop-name">${data.shopName}</div>
           ${data.shopAddress ? `<div class="shop-details">${data.shopAddress}</div>` : ""}
-          ${data.shopPhone ? `<div class="shop-details">Tel: ${data.shopPhone}</div>` : ""}
+          ${data.shopPhone ? `<div class="shop-details">📞 ${data.shopPhone}</div>` : ""}
         </div>
 
         <div class="bill-info">
-          <div>
+          <div class="bill-info-box">
             <strong>Bill No:</strong> ${data.billNumber}<br>
             <strong>Order:</strong> #${data.orderNumber}
           </div>
-          <div style="text-align: right;">
-            ${formatDate(data.date)}
-            ${data.tableNumber ? `<br><strong>Table:</strong> ${data.tableNumber}` : ""}
+          <div class="bill-info-box">
+            <strong>Date:</strong> ${formatDate(data.date)}<br>
+            ${data.tableNumber ? `<strong>Table:</strong> ${data.tableNumber}` : ""}
           </div>
         </div>
 
+        <div class="divider"></div>
+
         <div class="customer-info">
-          <strong>Customer:</strong> ${data.customerName}<br>
-          <strong>Phone:</strong> ${data.customerPhone}
-          ${data.customerAddress ? `<br><strong>Address:</strong> ${data.customerAddress}` : ""}
+          <div class="customer-info-title">Customer Details</div>
+          <div class="customer-info-text">
+            <strong>${data.customerName}</strong><br>
+            📱 ${data.customerPhone}
+            ${data.customerAddress ? `<br>📍 ${data.customerAddress}` : ""}
+          </div>
         </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Qty</th>
-              <th>Price</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsHTML}
-          </tbody>
-        </table>
+        <div class="items-section">
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHTML}
+            </tbody>
+          </table>
+        </div>
 
         <div class="totals">
           <div class="total-row">
@@ -131,7 +153,7 @@ export function generateBillHTML(data: BillData): string {
           ${data.discount ? `
           <div class="total-row">
             <span>Discount</span>
-            <span>-₹${data.discount.toFixed(2)}</span>
+            <span style="color: #16a34a;">-₹${data.discount.toFixed(2)}</span>
           </div>
           ` : ""}
           <div class="total-row final">
@@ -141,13 +163,14 @@ export function generateBillHTML(data: BillData): string {
         </div>
 
         <div class="payment-info">
-          <strong>Payment:</strong> ${data.paymentMode.toUpperCase()}
-          ${data.paymentMode === "upi" && data.upiId ? `<br><small>UPI: ${data.upiId}</small>` : ""}
+          <div class="payment-info-text">Payment: ${data.paymentMode.toUpperCase()}</div>
+          ${data.paymentMode === "upi" && data.upiId ? `<small>UPI ID: ${data.upiId}</small>` : ""}
         </div>
 
         <div class="footer">
-          Thank you for your order!<br>
-          Visit us again
+          <div class="powered-by">✨ Powered by Marwahi.in ✨</div>
+          <div class="thank-you">Thank you for your order!</div>
+          <div class="visit-info">Visit again for best experience</div>
         </div>
       </div>
     </body>
@@ -163,11 +186,8 @@ export function downloadBillPDF(data: BillData): void {
     printWindow.document.close();
     printWindow.onload = () => {
       printWindow.print();
-      // Close the window after printing (optional)
-      // printWindow.close();
     };
   } else {
-    // Fallback: download as HTML file
     console.log("Popup blocked, downloading as HTML file");
     downloadBillAsHTML(data);
   }
