@@ -33,8 +33,10 @@ start_server() {
     echo "Starting HDOS server..."
     echo ""
 
-    # Stop existing
-    sudo systemctl stop hdos 2>/dev/null || true
+    # Stop existing (suppress output)
+    sudo systemctl stop hdos > /dev/null 2>&1 || true
+    sudo pkill -9 -f 'tsx server/index.ts' > /dev/null 2>&1 || true
+    sudo pkill -9 -f 'node.*tsx' > /dev/null 2>&1 || true
     sleep 2
 
     # Create systemd service

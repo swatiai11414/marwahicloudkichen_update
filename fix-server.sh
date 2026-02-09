@@ -34,10 +34,12 @@ print_warning() {
     echo -e "${YELLOW}[!]${NC} $1"
 }
 
-# Step 1: Kill existing server processes
+# Step 1: Kill existing server processes (suppress output)
 echo "Step 1: Stopping existing server processes..."
-sudo pkill -9 -f 'tsx server/index.ts' 2>/dev/null || true
-sudo pkill -9 -f 'node.*tsx' 2>/dev/null || true
+sudo pkill -9 -f 'tsx server/index.ts' > /dev/null 2>&1 || true
+sudo pkill -9 -f 'node.*tsx' > /dev/null 2>&1 || true
+sudo systemctl stop hdos > /dev/null 2>&1 || true
+sleep 2
 sudo fuser -k 80/tcp 2>/dev/null || true
 sleep 3
 print_status "Old processes killed"
@@ -45,7 +47,7 @@ print_status "Old processes killed"
 # Step 2: Free port 80
 echo ""
 echo "Step 2: Freeing port 80..."
-sudo fuser -k 80/tcp 2>/dev/null || true
+sudo fuser -k 80/tcp > /dev/null 2>&1 || true
 sleep 1
 print_status "Port 80 freed"
 

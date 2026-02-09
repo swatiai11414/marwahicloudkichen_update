@@ -212,10 +212,11 @@ do_start() {
 
     sed -i "s/PORT=.*/PORT=$PORT/" .env 2>/dev/null || true
 
-    sudo pkill -9 -f 'tsx server/index.ts' 2>/dev/null || true
-    sudo pkill -9 -f 'node.*tsx' 2>/dev/null || true
+    # Kill existing processes silently (suppress "Killed" messages)
+    sudo pkill -9 -f 'tsx server/index.ts' > /dev/null 2>&1 || true
+    sudo pkill -9 -f 'node.*tsx' > /dev/null 2>&1 || true
     sleep 2
-    sudo fuser -k ${PORT}/tcp 2>/dev/null || true
+    sudo fuser -k ${PORT}/tcp > /dev/null 2>&1 || true
     sleep 1
 
     cd "$(dirname "$0")"
@@ -271,10 +272,10 @@ EOF
 do_stop() {
     echo ""
     echo -e "${YELLOW}Stopping server...${NC}"
-    sudo systemctl stop hdos 2>/dev/null || true
-    sudo pkill -9 -f 'tsx server/index.ts' 2>/dev/null || true
-    sudo pkill -9 -f 'node.*tsx' 2>/dev/null || true
-    sudo fuser -k ${PORT}/tcp 2>/dev/null || true
+    sudo systemctl stop hdos > /dev/null 2>&1 || true
+    sudo pkill -9 -f 'tsx server/index.ts' > /dev/null 2>&1 || true
+    sudo pkill -9 -f 'node.*tsx' > /dev/null 2>&1 || true
+    sudo fuser -k ${PORT}/tcp > /dev/null 2>&1 || true
     sleep 2
     log_success "Server stopped"
 }
