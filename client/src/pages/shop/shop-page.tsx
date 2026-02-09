@@ -248,7 +248,9 @@ function ShopPageContent() {
       
       setCreatedOrder(order);
       setShowLoginModal(false);
-      setShowPaymentModal(true);
+      
+      // Show success modal first, then user continues to payment
+      setShowSuccessModal(true);
       
       // Store customer for auto-recognition
       if (data?.shop?.id && customerInfo.phone) {
@@ -1403,6 +1405,174 @@ function ShopPageContent() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Order Success Modal - Shows after order is placed */}
+      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <DialogContent className="sm:max-w-lg max-w-[95vw] mx-auto max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <div className="flex justify-center mb-3">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 animate-pulse">
+                <CheckCircle className="h-10 w-10 text-green-600" />
+              </div>
+            </div>
+            <DialogTitle className="text-center text-2xl font-bold text-green-700 dark:text-green-400">
+              Order Placed Successfully!
+            </DialogTitle>
+            <DialogDescription className="text-center text-base">
+              Thank you for your order, {customerInfo.name.split(" ")[0]}!
+            </DialogDescription>
+          </DialogHeader>
+          
+          {createdOrder && orderItemsSnapshot.length > 0 && (
+            <ScrollArea className="flex-1 max-h-[50vh] pr-4">
+              <div className="space-y-4">
+                {/* Order Summary Card */}
+                <Card className="bg-gradient-to-br from-green-50 to-white dark:from-green-950/30 dark:to-background border-green-200 dark:border-green-800">
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Order Number</span>
+                      <span className="font-bold text-lg">#{createdOrder.orderNumber || createdOrder.id.slice(-8).toUpperCase()}</span>
+                    </div>
+                    {tableNumber && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Table / Token</span>
+                        <Badge variant="outline">{tableNumber}</Badge>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Phone</span>
+                      <span className="font-medium">{customerInfo.phone}</span>
+                    </div>
+                    {customerInfo.address && (
+                      <div className="flex justify-between items-start">
+                        <span className="text-sm text-muted-foreground">Delivery Address</span>
+                        <span className="font-medium text-right max-w-[60%]">{customerInfo.address}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Pin Code</span>
+                      <span className="font-medium">{customerInfo.pinCode}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Order Items */}
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-base">Your Order</h3>
+                  <Card>
+                    <CardContent className="p-3 space-y-2">
+                      {orderItemsSnapshot.map((item, index) => (
+                        <div key={index} className="flex justify-between items-center py-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground">{item.quantity}x</span>
+                            <span className="font-medium">{item.name}</span>
+                          </div>
+                          <span className="text-sm">₹{(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Order Totals */}
+                <Card>
+                  <CardContent className="p-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span>₹{totalAmount.toFixed(2)}</span>
+                    </div>
+                    {finalDeliveryCharge > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Delivery Charge</span>
+                        <span>₹{finalDeliveryCharge.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {finalDeliveryCharge === 0 && isFreeDelivery && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span className="flex items-center gap-1">
+                          <CheckCircle className="h-4 w-4" />
+                          Free Delivery
+                        </span>
+                      </div>
+                    )}
+                    <Separator />
+                    <div className="flex justify-between font-bold text-lg">
+                      <span>Total</span>
+                      <span className="text-primary">₹{finalTotal.toFixed(2)}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Order Notes if any */}
+                {orderNotes && (
+                  <Card className="bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800">
+                    <CardContent className="p-3">
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Special Instructions:</p>
+                      <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">{orderNotes}</p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Estimated Time */}
+                <Card className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50">
+                      <Clock className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-blue-900 dark:text-blue-100">Estimated Preparation Time</p>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">15-20 minutes</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Order Status Info */}
+                <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-muted/50">
+                  <Badge variant="secondary" className="gap-1">
+                    <Clock className="h-3 w-3" />
+                    Awaiting Payment
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">
+                    {selectedPaymentMode === "cash" 
+                      ? "Please pay at the counter"
+                      : "Complete UPI payment"}
+                  </span>
+                </div>
+              </div>
+            </ScrollArea>
+          )}
+          
+          {/* Footer Actions */}
+          <div className="flex flex-col gap-2 pt-4 flex-shrink-0">
+            <Button 
+              className="w-full gap-2 h-12 text-base font-semibold"
+              onClick={() => {
+                setShowSuccessModal(false);
+                setShowPaymentModal(true);
+              }}
+              data-testid="button-continue-payment"
+            >
+              <CreditCard className="h-5 w-5" />
+              Continue to Payment
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full h-10"
+              onClick={() => {
+                setShowSuccessModal(false);
+                clearCart();
+                setCreatedOrder(null);
+                setOrderItemsSnapshot([]);
+                setTableNumber("");
+                setOrderNotes("");
+              }}
+              data-testid="button-success-done"
+            >
+              Done
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
