@@ -323,6 +323,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createCategory(category: InsertMenuCategory): Promise<MenuCategory> {
+    // Ensure delivery charge columns exist
+    try {
+      await db.execute(sql`
+        ALTER TABLE menu_categories
+        ADD COLUMN IF NOT EXISTS delivery_charge decimal(10, 2) DEFAULT '0',
+        ADD COLUMN IF NOT EXISTS delivery_charge_label varchar(100)
+      `);
+    } catch (alterError) {
+      // Ignore - columns may already exist
+    }
+    
     const [created] = await db.insert(menuCategories).values(category).returning();
     return created;
   }
