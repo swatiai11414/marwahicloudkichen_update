@@ -31,8 +31,14 @@ export async function setupVite(server: Server, app: Express) {
 
   app.use(vite.middlewares);
 
+  // Only serve HTML for non-API routes
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
+
+    // Skip API routes - let them be handled by Express routes
+    if (url.startsWith("/api")) {
+      return next();
+    }
 
     try {
       const clientTemplate = path.resolve(
