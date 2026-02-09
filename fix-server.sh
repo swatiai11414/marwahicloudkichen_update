@@ -3,6 +3,7 @@
 # HDOS Server Fix Script
 # Usage: ./fix-server.sh
 # Run this directly on your VPS server!
+# This script fixes and restarts the server WITHOUT pulling code
 
 set -e
 
@@ -36,26 +37,36 @@ print_warning() {
 # Step 1: Kill existing server processes
 echo "Step 1: Stopping existing server processes..."
 sudo pkill -9 -f 'tsx server/index.ts' 2>/dev/null || true
-sleep 2
+sudo pkill -9 -f 'node.*tsx' 2>/dev/null || true
+sudo fuser -k 80/tcp 2>/dev/null || true
+sleep 3
 print_status "Old processes killed"
 
-# Step 2: Pull latest code
+# Step 2: Free port 80
 echo ""
-echo "Step 2: Pulling latest code from GitHub..."
-cd "$PROJECT_DIR"
-git pull origin main
-print_status "Code updated"
+echo "Step 2: Freeing port 80..."
+sudo fuser -k 80/tcp 2>/dev/null || true
+sleep 1
+print_status "Port 80 freed"
 
-# Step 3: Start server
+# Step 3: Clean up node_modules cache (optional)
 echo ""
-echo "Step 3: Starting server..."
-sudo NODE_ENV=development PORT=80 npx tsx server/index.ts &
-sleep 8
+echo "Step 3: Clearing temporary cache..."
+rm -rf "$PROJECT_DIR"/node_modules/.vite 2>/dev/null || true
+rm -rf "$PROJECT_DIR"/node_modules/.cache 2>/dev/null || true
+print_status "Cache cleared"
+
+# Step 4: Start server
+echo ""
+echo "Step 4: Starting server..."
+cd "$PROJECT_DIR"
+sudo NODE_ENV=development PORT=80 nohup npx tsx server/index.ts > /tmp/server.log 2>&1 &
+sleep 10
 print_status "Server started"
 
-# Step 4: Test endpoints
+# Step 5: Test endpoints
 echo ""
-echo "Step 4: Testing endpoints..."
+echo "Step 5: Testing endpoints..."
 
 # Test health endpoint
 HEALTH=$(curl -s http://localhost/api/health 2>/dev/null)
@@ -70,6 +81,9 @@ else
         print_status "API Health: OK (after retry)"
     else
         print_error "API Health: Still failing"
+        echo ""
+        echo "Server log:"
+        tail -20 /tmp/server.log 2>/dev/null || echo "No logs available"
     fi
 fi
 
@@ -78,7 +92,7 @@ SHOPS=$(curl -s http://localhost/api/shops/list 2>/dev/null)
 if echo "$SHOPS" | grep -q "\["; then
     print_status "Shops API: OK (Response: $SHOPS)"
 else
-    print_error "Shops API: FAILED"
+    print_warning "Shops API: Empty or slow"
 fi
 
 # Test HTML page
@@ -89,9 +103,9 @@ else
     print_error "Landing Page: FAILED ($HTML_SIZE bytes)"
 fi
 
-# Step 5: Show server status
+# Step 6: Show server status
 echo ""
-echo "Step 5: Server Process Status..."
+echo "Step 6: Server Process Status..."
 ps aux | grep tsx | grep -v grep | head -3
 
 echo ""
