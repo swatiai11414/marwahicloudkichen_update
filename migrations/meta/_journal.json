@@ -15,6 +15,20 @@
       "when": 1769297466932,
       "tag": "0001_add_new_shop_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769297466933,
+      "tag": "0002_add_delivery_charge_columns",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1769297466934,
+      "tag": "0003_add_store_availability_tables",
+      "breakpoints": true
     }
   ]
 }
