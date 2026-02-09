@@ -227,6 +227,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createShop(shop: InsertShop): Promise<Shop> {
+    // First, ensure all new columns exist
+    try {
+      await db.execute(sql`
+        ALTER TABLE shops
+        ADD COLUMN IF NOT EXISTS super_admin_whatsapp varchar(20),
+        ADD COLUMN IF NOT EXISTS allowed_pin_codes text DEFAULT '495118',
+        ADD COLUMN IF NOT EXISTS delivery_charge_reason varchar(255),
+        ADD COLUMN IF NOT EXISTS free_delivery_threshold decimal(10, 2)
+      `);
+    } catch (alterError) {
+      // Ignore alter errors - columns may already exist
+    }
+    
     const [created] = await db.insert(shops).values(shop).returning();
     return created;
   }
